@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88684271e27adb843b6570957c9e7637, type: 3}
+  m_Name: _vrm1_
+  m_EditorClassIdentifier: VRM10::UniVRM10.VRM10Object
+  m_prefab: {fileID: -1728013695380148634, guid: 12fc9764aa4214f8b9b46e9bacf471f2, type: 3}
+  Meta:
+    Name: aya
+    Version: 
+    Authors:
+    - kasio
+    CopyrightInformation: 
+    ContactInformation: 
+    References: []
+    ThirdPartyLicenses: 
+    Thumbnail: {fileID: 2800000, guid: 0bd37e4059e474fe286410a99432e6a8, type: 3}
+    AvatarPermission: 0
+    ViolentUsage: 0
+    SexualUsage: 0
+    CommercialUsage: 0
+    PoliticalOrReligiousUsage: 0
+    AntisocialOrHateUsage: 0
+    CreditNotation: 0
+    Redistribution: 0
+    Modification: 0
+    OtherLicenseUrl: 
+  Expression:
+    Happy: {fileID: 11400000, guid: cb959f0d8756e4210a0652b756b813ac, type: 2}
+    Angry: {fileID: 11400000, guid: b1d0a30a63ced43d5a20afcfacdbe227, type: 2}
+    Sad: {fileID: 11400000, guid: 5b7976c87fab94343a42247f50fe8fd2, type: 2}
+    Relaxed: {fileID: 11400000, guid: d196c07ce325945ee9271ce2d57676c2, type: 2}
+    Surprised: {fileID: 11400000, guid: b9794f86d1ba3473bbfe142ba4f56f67, type: 2}
+    Aa: {fileID: 11400000, guid: 490d1b0df1b02453bbd2a6c528c2df70, type: 2}
+    Ih: {fileID: 11400000, guid: d06475890d0cb456282f5c02aa9a8a8c, type: 2}
+    Ou: {fileID: 11400000, guid: cf499a58fa9ce48baaa3bc9fe54f082d, type: 2}
+    Ee: {fileID: 11400000, guid: 058fe4b43f50345eeac10b336f54c622, type: 2}
+    Oh: {fileID: 11400000, guid: 7b8a054d4b37a43c6833691d47a8a7ac, type: 2}
+    Blink: {fileID: 11400000, guid: 9647e812bce5a470ba14c6cbaf5655ba, type: 2}
+    BlinkLeft: {fileID: 11400000, guid: 1ae76be9cb66340518296042841a9022, type: 2}
+    BlinkRight: {fileID: 11400000, guid: a80df0df24fa64d6f9f5b63969487d38, type: 2}
+    LookUp: {fileID: 11400000, guid: 706839a97e46a40ee931d2e186f512f9, type: 2}
+    LookDown: {fileID: 11400000, guid: 73478b91a39244d009da1d2b34ee6e32, type: 2}
+    LookLeft: {fileID: 11400000, guid: 39dec24fa3a3f4dffa4450b52ab8a825, type: 2}
+    LookRight: {fileID: 11400000, guid: f54ea32f531424f3aac0fe65d8f8ef70, type: 2}
+    Neutral: {fileID: 11400000, guid: 4f0a1c49a45f3445b8d8cd707df1b6a3, type: 2}
+    CustomClips: []
+  LookAt:
+    OffsetFromHead: {x: -0, y: 0.06, z: 0}
+    LookAtType: 0
+    HorizontalOuter:
+      CurveXRangeDegree: 90
+      CurveYRangeDegree: 12
+    HorizontalInner:
+      CurveXRangeDegree: 90
+      CurveYRangeDegree: 8
+    VerticalDown:
+      CurveXRangeDegree: 90
+      CurveYRangeDegree: 10
+    VerticalUp:
+      CurveXRangeDegree: 90
+      CurveYRangeDegree: 10
+  FirstPerson:
+    Renderers:
+    - Renderer: Face
+      FirstPersonFlag: 0
+    - Renderer: Body
+      FirstPersonFlag: 0
