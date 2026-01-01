@@ -472,6 +472,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: aya
       objectReference: {fileID: 0}
+    - target: {fileID: 4870552773557632513, guid: 12fc9764aa4214f8b9b46e9bacf471f2, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 7f70b38cc60b94e209403069e1296b09, type: 2}
     - target: {fileID: 5159078012444724336, guid: 12fc9764aa4214f8b9b46e9bacf471f2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
