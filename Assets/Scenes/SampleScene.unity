@@ -776,7 +776,7 @@ CharacterController:
   m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.02
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.8, z: 0}
 --- !u!4 &1743813310 stripped
@@ -801,9 +801,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 964bda8d428b441f8a8b2a20b33adb6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  walkSpeed: 2
-  runSpeed: 5
-  rotationSpeed: 10
+  walkSpeed: 1.5
+  runSpeed: 3
+  rotationSpeed: 15
   gravity: -9.81
   animator: {fileID: 1743813311}
   cameraTransform: {fileID: 330585546}
