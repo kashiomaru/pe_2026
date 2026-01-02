@@ -82,7 +82,7 @@ public class MapGenerator : MonoBehaviour
                 switch (tileType)
                 {
                     case 'W': // Wall
-                        GenerateWall(x, z, rows, position, size, levelParent.transform);
+                        GenerateWall(x, z, rows, position, size, levelParent.transform, false);
                         break;
 
                     case 'P': // Player
@@ -102,6 +102,12 @@ public class MapGenerator : MonoBehaviour
                             if(cc != null) cc.enabled = true;
                         }
                         break;
+                }
+                
+                // 数字（'0'～'9'）の場合は壁とドアを配置
+                if (char.IsDigit(tileType))
+                {
+                    GenerateWall(x, z, rows, position, size, levelParent.transform, true);
                 }
             }
         }
@@ -125,7 +131,8 @@ public class MapGenerator : MonoBehaviour
     /// <summary>
     /// 壁を生成する。周囲の外側判定を行い、適切な方向に壁を配置する
     /// </summary>
-    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent)
+    /// <param name="placeDoor">ドアを配置するかどうか</param>
+    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent, bool placeDoor)
     {
         // 上下左右の外側判定
         List<Vector2Int> outsideDirections = new List<Vector2Int>();
@@ -169,6 +176,24 @@ public class MapGenerator : MonoBehaviour
             Quaternion rotation = GetWallRotation(dir);
             GameObject wall = Instantiate(wallQuadPrefab, wallPos, rotation, parent);
             wall.transform.localScale = new Vector3(size, size, 1);
+            
+            // ドアを配置する場合、壁より0.01だけ内側に配置
+            if (placeDoor && doorQuadPrefab != null)
+            {
+                // 内側方向に0.01移動（外側方向の逆方向）
+                Vector3 doorOffset = new Vector3(-dir.x * 0.01f, 0, dir.y * 0.01f);
+                
+                // ドアの高さをScaleから取得
+                float doorHeight = doorQuadPrefab.transform.localScale.y;
+                
+                // 壁の位置を基準に、内側に0.01移動し、床に設置する位置を計算
+                // 壁のY座標（size * 0.5f）から、ドアの高さの半分（doorHeight * 0.5f）に変更
+                Vector3 doorPos = wallPos + doorOffset;
+                doorPos.y = doorHeight * 0.5f; // 床に設置
+                
+                // 実際のドアを配置（元のサイズのまま）
+                GameObject door = Instantiate(doorQuadPrefab, doorPos, rotation, parent);
+            }
         }
     }
     
