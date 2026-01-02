@@ -24,13 +24,13 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
     public Animator animator;
-    public Transform cameraTransform; // カメラのTransformを割り当てる
     public InputActionAsset inputActions; // Input Actionsファイルを割り当てる
     public GameObject rangeDome;
 
     private CharacterController _characterController;
     private Vector3 _velocity;
     private float _currentSpeed;
+    private Transform _cachedCameraTransform; // キャッシュされたカメラTransform
     
     // Input System用の変数
     private InputActionMap _playerActionMap;
@@ -47,12 +47,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
-        
-        // カメラが未設定ならメインカメラを自動取得
-        if (cameraTransform == null && Camera.main != null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
         
         // Input Systemの初期化
         if (inputActions != null)
@@ -177,9 +171,10 @@ public class PlayerController : MonoBehaviour
         else
         {
             // 敵が見つからない場合はカメラの前方を向く（フォールバック）
-            if (cameraTransform != null)
+            Transform cam = GetCameraTransform();
+            if (cam != null)
             {
-                Vector3 lookDirection = -cameraTransform.forward;
+                Vector3 lookDirection = -cam.forward;
                 lookDirection.y = 0f;
                 if (lookDirection.magnitude > 0.1f)
                 {
@@ -232,7 +227,10 @@ public class PlayerController : MonoBehaviour
         if (hasInput)
         {
             // カメラの向きを基準に移動方向を計算
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
+            Transform cam = GetCameraTransform();
+            if (cam == null) return; // カメラが取得できない場合は移動しない
+            
+            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
             
             // キャラクターの向きを滑らかに補間
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _currentSpeed, 1.0f / rotationSpeed);
@@ -262,6 +260,24 @@ public class PlayerController : MonoBehaviour
 
         _velocity.y += gravity * Time.deltaTime;
         _characterController.Move(_velocity * Time.deltaTime);
+    }
+
+    Transform GetCameraTransform()
+    {
+        // 既にキャッシュされていればそれを返す
+        if (_cachedCameraTransform != null)
+        {
+            return _cachedCameraTransform;
+        }
+
+        // メインカメラを自動取得
+        if (Camera.main != null)
+        {
+            _cachedCameraTransform = Camera.main.transform;
+            return _cachedCameraTransform;
+        }
+
+        return null;
     }
 
     Transform FindNearestEnemy()
