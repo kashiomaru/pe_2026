@@ -162,7 +162,9 @@ public class MapGenerator : MonoBehaviour
         // 外側が1つまたは2つの場合、壁を生成
         foreach (var dir in outsideDirections)
         {
-            Vector3 wallPos = position + Vector3.up * (size * 0.5f);
+            // 壁の位置を外側に寄せる（外側方向にタイルサイズの半分だけ移動）
+            Vector3 offset = new Vector3(dir.x * size * 0.5f, 0, -dir.y * size * 0.5f);
+            Vector3 wallPos = position + offset + Vector3.up * (size * 0.5f);
             Quaternion rotation = GetWallRotation(dir);
             GameObject wall = Instantiate(wallQuadPrefab, wallPos, rotation, parent);
             wall.transform.localScale = new Vector3(size, size, 1);
