@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     public Slider atbSlider;        // UIのスライダーをアタッチ
     public GameObject gunObject;    // 手に持っている銃（表示/非表示用）
 
+    [Header("Combat")]
+    public Transform gunMuzzle; // 銃口の位置（空のGameObjectを銃の先に配置して割り当てる）
+    public LayerMask enemyLayer; // Enemyレイヤーを指定
+
     [Header("References")]
     public Animator animator;
     public Transform cameraTransform; // カメラのTransformを割り当てる
@@ -168,7 +172,9 @@ public class PlayerController : MonoBehaviour
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             animator.SetTrigger("Fire");
-            Debug.Log("Bang!");
+            
+            // ★ここから攻撃判定追加
+            ShootRaycast();
             
             // 発砲アニメーションが終わったくらいのタイミングでモード解除（コルーチン推奨だが今は簡易的に）
             Invoke("ExitAimMode", 0.5f);
@@ -235,5 +241,26 @@ public class PlayerController : MonoBehaviour
 
         _velocity.y += gravity * Time.deltaTime;
         _characterController.Move(_velocity * Time.deltaTime);
+    }
+
+    void ShootRaycast()
+    {
+        // 銃口がない場合は、とりあえずプレイヤーの胸あたりから飛ばす
+        Vector3 origin = gunMuzzle != null ? gunMuzzle.position : transform.position + Vector3.up * 1.5f;
+        Vector3 direction = transform.forward; // プレイヤーの正面
+
+        RaycastHit hit;
+        // 射程距離は10mとして設定
+        if (Physics.Raycast(origin, direction, out hit, 10f, enemyLayer))
+        {
+            // 当たった相手が Enemy コンポーネントを持っていたら
+            Enemy enemy = hit.collider.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(1); // 1ダメージ与える
+                
+                // ★ここにヒットエフェクト（火花や血）をInstantiateすると気持ちいい
+            }
+        }
     }
 }
