@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     public Animator animator;
     public Transform cameraTransform; // カメラのTransformを割り当てる
     public InputActionAsset inputActions; // Input Actionsファイルを割り当てる
+    public GameObject rangeDome;
 
     private CharacterController _characterController;
     private Vector3 _velocity;
@@ -129,7 +130,9 @@ public class PlayerController : MonoBehaviour
         _isAiming = true;
         animator.SetBool("IsAiming", true); // 上半身レイヤーが有効になる
         if (gunObject != null) gunObject.SetActive(true);
-        
+
+        rangeDome.SetActive(true);
+
         // ★ここで時間が止まる演出を入れるとPEっぽくなります
     }
 
@@ -138,6 +141,9 @@ public class PlayerController : MonoBehaviour
         _isAiming = false;
         animator.SetBool("IsAiming", false);
         if (gunObject != null) gunObject.SetActive(false);
+
+        rangeDome.SetActive(false);
+        
         // ゲージをリセット
         _currentCharge = 0f;
     }
@@ -149,7 +155,7 @@ public class PlayerController : MonoBehaviour
         // プレイヤーの向きを敵（今は仮でカメラ前方）に向ける
         if (cameraTransform != null)
         {
-            Vector3 lookDirection = cameraTransform.forward;
+            Vector3 lookDirection = -cameraTransform.forward;
             lookDirection.y = 0f;
             if (lookDirection.magnitude > 0.1f)
             {
