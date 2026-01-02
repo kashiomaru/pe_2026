@@ -555,6 +555,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 360626817129693361, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
+      propertyPath: cinemachineCamera
+      value: 
+      objectReference: {fileID: 237737664}
     - target: {fileID: 2328808557122119121, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
       propertyPath: m_Name
       value: MapGenerator
