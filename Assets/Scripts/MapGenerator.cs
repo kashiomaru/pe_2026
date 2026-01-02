@@ -20,7 +20,7 @@ public class MapGenerator : MonoBehaviour
     /// <summary>
     /// JSONからマップを生成する（MapManagerから呼び出される）
     /// </summary>
-    public void GenerateMapFromJson(string json, int spawnIndex)
+    public void GenerateMapFromJson(string json, int spawnNumber)
     {
         // 今あるマップを消す（プレイヤーインスタンスは除外）
         foreach (Transform child in transform)
@@ -52,8 +52,8 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        // スポーン候補位置リスト
-        List<Vector3> spawnPoints = new List<Vector3>();
+        // スポーン候補位置辞書（番号と位置の対応）
+        Dictionary<int, Vector3> spawnPoints = new Dictionary<int, Vector3>();
 
         GameObject levelParent = new GameObject("Level_Generated");
         levelParent.transform.SetParent(transform);
@@ -86,8 +86,8 @@ public class MapGenerator : MonoBehaviour
                         break;
 
                     case 'P': // Player
-                        // スポーン地点として記録（0番扱い）
-                        spawnPoints.Insert(0, position);
+                        // スポーン地点として記録（0番）
+                        spawnPoints[0] = position;
                         break;
                 }
                 
@@ -130,8 +130,9 @@ public class MapGenerator : MonoBehaviour
                             portalScript.targetSpawnId = def.targetSpawnId;
                         }
                         
-                        // スポーン地点として記録
-                        spawnPoints.Add(position);
+                        // スポーン地点として記録（数字をキーとして使用）
+                        int spawnKey = int.Parse(charStr);
+                        spawnPoints[spawnKey] = position;
                     }
                 }
             }
@@ -139,9 +140,9 @@ public class MapGenerator : MonoBehaviour
         
         // プレイヤーを指定の位置へ移動
         Transform playerTransform = null;
-        if (spawnPoints.Count > spawnIndex && playerPrefab != null)
+        if (spawnPoints.ContainsKey(spawnNumber) && playerPrefab != null)
         {
-            Vector3 spawnPos = spawnPoints[spawnIndex] + Vector3.up * 0.1f;
+            Vector3 spawnPos = spawnPoints[spawnNumber] + Vector3.up * 0.1f;
             
             // 最初の生成時のみインスタンス化、その後は使いまわし
             playerInstance = playerInstance ?? Instantiate(playerPrefab, spawnPos, Quaternion.identity, transform);

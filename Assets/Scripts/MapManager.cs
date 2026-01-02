@@ -28,7 +28,7 @@ public class MapManager : MonoBehaviour
         LoadMap("Map01", 0);
     }
 
-    public void LoadMap(string mapId, int spawnIndex)
+    public void LoadMap(string mapId, int spawnNumber)
     {
         if (!_mapDatabase.ContainsKey(mapId))
         {
@@ -39,6 +39,6 @@ public class MapManager : MonoBehaviour
         string json = _mapDatabase[mapId];
         
         // ジェネレーターに「作れ！」と命令
-        mapGenerator.GenerateMapFromJson(json, spawnIndex);
+        mapGenerator.GenerateMapFromJson(json, spawnNumber);
     }
 }
