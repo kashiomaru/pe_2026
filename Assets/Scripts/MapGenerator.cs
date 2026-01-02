@@ -81,14 +81,7 @@ public class MapGenerator : MonoBehaviour
                 switch (tileType)
                 {
                     case 'W': // Wall
-                        // 壁もQuadで作る（ビルボード状、または箱にするには4枚必要）
-                        // ※簡易的に「カメラから見て正面」の一枚板にするか、交差させる手法（Cross Quad）があります。
-                        // ここでは「垂直に立った板」として配置します。
-                        
-                        // 位置調整: Quadの中心が足元なら y = size/2 上げる
-                        Vector3 wallPos = position + Vector3.up * (size * 0.5f);
-                        GameObject wall = Instantiate(wallQuadPrefab, wallPos, Quaternion.identity, levelParent.transform);
-                        wall.transform.localScale = new Vector3(size, size, 1);
+                        GenerateWall(x, z, rows, position, size, levelParent.transform);
                         break;
 
                     case 'P': // Player
@@ -126,5 +119,93 @@ public class MapGenerator : MonoBehaviour
         {
             Debug.LogWarning("Player was not found in the map layout (no 'P' tile)");
         }
+    }
+
+    /// <summary>
+    /// 壁を生成する。周囲の外側判定を行い、適切な方向に壁を配置する
+    /// </summary>
+    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent)
+    {
+        // 上下左右の外側判定
+        List<Vector2Int> outsideDirections = new List<Vector2Int>();
+        
+        // 上（Zマイナス方向、rowsのインデックスが小さい方）
+        if (z == 0 || IsOutside(rows[z - 1], x))
+        {
+            outsideDirections.Add(new Vector2Int(0, -1)); // 上
+        }
+        
+        // 下（Zプラス方向、rowsのインデックスが大きい方）
+        if (z >= rows.Length - 1 || IsOutside(rows[z + 1], x))
+        {
+            outsideDirections.Add(new Vector2Int(0, 1)); // 下
+        }
+        
+        // 左（Xマイナス方向）
+        if (x == 0 || IsOutside(rows[z], x - 1))
+        {
+            outsideDirections.Add(new Vector2Int(-1, 0)); // 左
+        }
+        
+        // 右（Xプラス方向）
+        if (x >= rows[z].Length - 1 || IsOutside(rows[z], x + 1))
+        {
+            outsideDirections.Add(new Vector2Int(1, 0)); // 右
+        }
+        
+        // 外側が3つ以上ある場合は壁を配置しない
+        if (outsideDirections.Count >= 3)
+        {
+            return;
+        }
+        
+        // 外側が1つまたは2つの場合、壁を生成
+        foreach (var dir in outsideDirections)
+        {
+            Vector3 wallPos = position + Vector3.up * (size * 0.5f);
+            Quaternion rotation = GetWallRotation(dir);
+            GameObject wall = Instantiate(wallQuadPrefab, wallPos, rotation, parent);
+            wall.transform.localScale = new Vector3(size, size, 1);
+        }
+    }
+    
+    /// <summary>
+    /// 指定位置が外側（マップ外）かどうかを判定
+    /// </summary>
+    bool IsOutside(string row, int x)
+    {
+        if (string.IsNullOrEmpty(row) || x < 0 || x >= row.Length)
+        {
+            return true;
+        }
+        char tile = row[x];
+        return tile == ' ';
+    }
+    
+    /// <summary>
+    /// 外側方向に応じた壁の回転角度を取得
+    /// 壁の表はX軸プラス方向（デフォルト）
+    /// </summary>
+    Quaternion GetWallRotation(Vector2Int outsideDirection)
+    {
+        // 外側方向に応じて、内側（反対方向）を向くように回転（逆向きに修正）
+        if (outsideDirection == new Vector2Int(0, -1)) // 上が外側 → 上向き（0度、デフォルト）
+        {
+            return Quaternion.identity;
+        }
+        else if (outsideDirection == new Vector2Int(0, 1)) // 下が外側 → 下向き（180度Y軸回転）
+        {
+            return Quaternion.Euler(0, 180, 0);
+        }
+        else if (outsideDirection == new Vector2Int(-1, 0)) // 左が外側 → 左向き（90度Y軸回転）
+        {
+            return Quaternion.Euler(0, -90, 0);
+        }
+        else if (outsideDirection == new Vector2Int(1, 0)) // 右が外側 → 右向き（-90度Y軸回転）
+        {
+            return Quaternion.Euler(0, 90, 0);
+        }
+        
+        return Quaternion.identity;
     }
 }
