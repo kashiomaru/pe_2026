@@ -685,7 +685,7 @@ MonoBehaviour:
   wallQuadPrefab: {fileID: 134090814964348493, guid: 8092c35bc07f24a46b179fde6b7b747f, type: 3}
   playerPrefab: {fileID: 3708988504835173406, guid: 5b4481e6648d2455e9a0bd64ca71033b, type: 3}
   cinemachineCamera: {fileID: 237737664}
-  jsonMapData: "{\n  \"tileSize\": 4.0,\n  \"layout\": [\n    \"WWWWWWWW\",\n   
+  jsonMapData: "{\n  \"tileSize\": 2.5,\n  \"layout\": [\n    \"WWWWWWWW\",\n   
     \"W......W\",\n    \"W.P....W\",\n    \"W......W\",\n    \"WWWWWWWW\"\n  ]\n}"
 --- !u!1 &785969628
 GameObject:

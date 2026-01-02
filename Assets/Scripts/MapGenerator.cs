@@ -8,6 +8,7 @@ public class MapGenerator : MonoBehaviour
     // CubeではなくQuadのプレハブ（またはUnity標準のQuad）を指定
     public GameObject floorQuadPrefab; 
     public GameObject wallQuadPrefab;
+    public GameObject doorQuadPrefab;
     public GameObject playerPrefab;
     
     [Header("Cinemachine")]
@@ -17,7 +18,7 @@ public class MapGenerator : MonoBehaviour
     [TextArea(10, 20)]
     public string jsonMapData = 
         "{\n" +
-        "  \"tileSize\": 4.0,\n" +
+        "  \"tileSize\": 2.0,\n" +
         "  \"layout\": [\n" +
         "    \"WWWWWWWW\",\n" +
         "    \"W......W\",\n" +
