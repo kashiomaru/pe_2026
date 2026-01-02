@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
     private float _currentCharge = 0f;
     private bool _isBattleReady = false; // 攻撃可能状態か
     private bool _isAiming = false;      // 構えているか
+    private Transform _targetEnemy;      // 構えモードで狙っている敵
 
     void Start()
     {
@@ -137,6 +138,9 @@ public class PlayerController : MonoBehaviour
 
         rangeDome.SetActive(true);
 
+        // 一番近いEnemyを検索
+        _targetEnemy = FindNearestEnemy();
+
         // ★ここで時間が止まる演出を入れるとPEっぽくなります
     }
 
@@ -148,23 +152,38 @@ public class PlayerController : MonoBehaviour
 
         rangeDome.SetActive(false);
         
+        // ターゲットをクリア
+        _targetEnemy = null;
+        
         // ゲージをリセット
         _currentCharge = 0f;
     }
 
     void HandleAiming()
     {
-        // ここで敵選択などを行うが、今はクリックで発砲して終了にする
-        
-        // プレイヤーの向きを敵（今は仮でカメラ前方）に向ける
-        if (cameraTransform != null)
+        // プレイヤーの向きを一番近い敵に向ける
+        if (_targetEnemy != null)
         {
-            Vector3 lookDirection = -cameraTransform.forward;
+            Vector3 lookDirection = _targetEnemy.position - transform.position;
             lookDirection.y = 0f;
             if (lookDirection.magnitude > 0.1f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
+        }
+        else
+        {
+            // 敵が見つからない場合はカメラの前方を向く（フォールバック）
+            if (cameraTransform != null)
+            {
+                Vector3 lookDirection = -cameraTransform.forward;
+                lookDirection.y = 0f;
+                if (lookDirection.magnitude > 0.1f)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                }
             }
         }
 
@@ -241,6 +260,35 @@ public class PlayerController : MonoBehaviour
 
         _velocity.y += gravity * Time.deltaTime;
         _characterController.Move(_velocity * Time.deltaTime);
+    }
+
+    Transform FindNearestEnemy()
+    {
+        // シーン内のすべてのEnemyを検索
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        
+        if (enemies == null || enemies.Length == 0)
+        {
+            return null;
+        }
+
+        Transform nearestEnemy = null;
+        float nearestDistance = float.MaxValue;
+
+        // 一番近いEnemyを見つける
+        foreach (Enemy enemy in enemies)
+        {
+            if (enemy == null || enemy.gameObject == null) continue;
+
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestEnemy = enemy.transform;
+            }
+        }
+
+        return nearestEnemy;
     }
 
     void ShootRaycast()
