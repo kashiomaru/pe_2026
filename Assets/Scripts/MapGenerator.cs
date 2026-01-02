@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class MapGenerator : MonoBehaviour
     public GameObject floorQuadPrefab; 
     public GameObject wallQuadPrefab;
     public GameObject playerPrefab;
+    
+    [Header("Cinemachine")]
+    public CinemachineCamera cinemachineCamera;
 
     [Header("Map Data (JSON)")]
     [TextArea(10, 20)]
@@ -52,6 +56,7 @@ public class MapGenerator : MonoBehaviour
         string[] rows = mapData.layout;
         
         GameObject levelParent = new GameObject("Level_Generated");
+        Transform playerTransform = null; // 生成されたプレイヤーのTransformを保持
 
         for (int z = 0; z < rows.Length; z++)
         {
@@ -89,18 +94,37 @@ public class MapGenerator : MonoBehaviour
                     case 'P': // Player
                         if (playerPrefab != null)
                         {
-                            // CharacterControllerへの配慮（前回同様）
-                            var cc = playerPrefab.GetComponent<CharacterController>();
+                            // プレイヤーを生成
+                            GameObject playerInstance = Instantiate(playerPrefab, position + Vector3.up * 0.1f, Quaternion.identity, levelParent.transform);
+                            playerTransform = playerInstance.transform;
+                            
+                            // CharacterControllerへの配慮
+                            var cc = playerInstance.GetComponent<CharacterController>();
                             if(cc != null) cc.enabled = false;
                             
-                            playerPrefab.transform.position = position + Vector3.up * 0.1f;
-                            playerPrefab.transform.rotation = Quaternion.identity;
+                            playerInstance.transform.position = position + Vector3.up * 0.1f;
+                            playerInstance.transform.rotation = Quaternion.identity;
                             
                             if(cc != null) cc.enabled = true;
                         }
                         break;
                 }
             }
+        }
+        
+        // CinemachineのTrackingTargetにプレイヤーのTransformを設定
+        if (cinemachineCamera != null && playerTransform != null)
+        {
+            cinemachineCamera.Target.TrackingTarget = playerTransform;
+            Debug.Log("Cinemachine TrackingTarget set to Player");
+        }
+        else if (cinemachineCamera == null)
+        {
+            Debug.LogWarning("CinemachineCamera is not assigned in MapGenerator");
+        }
+        else if (playerTransform == null)
+        {
+            Debug.LogWarning("Player was not found in the map layout (no 'P' tile)");
         }
     }
 }
