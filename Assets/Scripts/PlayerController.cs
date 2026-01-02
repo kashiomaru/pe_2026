@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     [Header("Combat")]
     public Transform gunMuzzle; // 銃口の位置（空のGameObjectを銃の先に配置して割り当てる）
     public LayerMask enemyLayer; // Enemyレイヤーを指定
+    public float attackRange = 10f; // 攻撃可能距離
 
     [Header("References")]
     public Animator animator;
@@ -303,21 +304,21 @@ public class PlayerController : MonoBehaviour
 
     void ShootRaycast()
     {
-        // 銃口がない場合は、とりあえずプレイヤーの胸あたりから飛ばす
-        Vector3 origin = gunMuzzle != null ? gunMuzzle.position : transform.position + Vector3.up * 1.5f;
-        Vector3 direction = transform.forward; // プレイヤーの正面
-
-        RaycastHit hit;
-        // 射程距離は10mとして設定
-        if (Physics.Raycast(origin, direction, out hit, 10f, enemyLayer))
+        // ターゲットの敵に直接ダメージを与える
+        if (_targetEnemy != null)
         {
-            // 当たった相手が Enemy コンポーネントを持っていたら
-            Enemy enemy = hit.collider.GetComponent<Enemy>();
-            if (enemy != null)
+            // 射程距離内かチェック
+            float distance = Vector3.Distance(transform.position, _targetEnemy.position);
+            if (distance <= attackRange)
             {
-                enemy.TakeDamage(1); // 1ダメージ与える
-                
-                // ★ここにヒットエフェクト（火花や血）をInstantiateすると気持ちいい
+                // 敵のEnemyコンポーネントを取得
+                Enemy enemy = _targetEnemy.GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(1); // 1ダメージ与える
+                    
+                    // ★ここにヒットエフェクト（火花や血）をInstantiateすると気持ちいい
+                }
             }
         }
     }
