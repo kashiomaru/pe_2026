@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI; // UI操作に必要
+using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -195,8 +196,8 @@ public class PlayerController : MonoBehaviour
             // ★ここから攻撃判定追加
             ShootRaycast();
             
-            // 発砲アニメーションが終わったくらいのタイミングでモード解除（コルーチン推奨だが今は簡易的に）
-            Invoke("ExitAimMode", 0.5f);
+            // 発砲アニメーションが終わったくらいのタイミングでモード解除（UniTask使用）
+            FireAndExitAsync().Forget();
         }
         
         // キャンセル処理（右クリック）
@@ -289,6 +290,15 @@ public class PlayerController : MonoBehaviour
         }
 
         return nearestEnemy;
+    }
+
+    async UniTaskVoid FireAndExitAsync()
+    {
+        // 0.5秒待機
+        await UniTask.Delay(System.TimeSpan.FromSeconds(0.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+        
+        // モード解除
+        ExitAimMode();
     }
 
     void ShootRaycast()
