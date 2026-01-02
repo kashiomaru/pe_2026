@@ -291,7 +291,7 @@ public class PlayerController : MonoBehaviour
     Transform FindNearestEnemy()
     {
         // シーン内のすべてのEnemyを検索
-        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        Enemy[] enemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         
         if (enemies == null || enemies.Length == 0)
         {

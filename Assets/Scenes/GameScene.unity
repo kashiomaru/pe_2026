@@ -1056,6 +1056,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1360572230}
   m_CullTransparentMesh: 1
+--- !u!1 &1379716412
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1379716413}
+  - component: {fileID: 1379716414}
+  m_Layer: 0
+  m_Name: MapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1379716413
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379716412}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1379716414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379716412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da3b1bbec36c047a1991bb0bf00101d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapManager
+  mapGenerator: {fileID: 1829310055}
+  mapFiles:
+  - {fileID: 4900000, guid: d61ef1196a96142b4977e6f4f7b0e925, type: 3}
+  - {fileID: 4900000, guid: 714c493ef3f84497e8918fdad07ed466, type: 3}
 --- !u!1 &1748039556
 GameObject:
   m_ObjectHideFlags: 0
@@ -1206,6 +1254,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1768981740}
   m_CullTransparentMesh: 1
+--- !u!114 &1829310055 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 360626817129693361, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
+  m_PrefabInstance: {fileID: 521578407}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8716e5196bf904e6a9a39ab7e9892865, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
 --- !u!1 &1865188677
 GameObject:
   m_ObjectHideFlags: 0
@@ -1292,3 +1351,4 @@ SceneRoots:
   - {fileID: 1282546388}
   - {fileID: 237737665}
   - {fileID: 521578407}
+  - {fileID: 1379716413}

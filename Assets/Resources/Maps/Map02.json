@@ -1,20 +1,20 @@
 {
-  "mapId": "Map01",
+  "mapId": "Map2",
   "tileSize": 2.5,
   "layout": [
     "WWWWWWWWWW",
     "W........W",
-    "W........1",
     "W........W",
     "W........W",
-    "W.P......W",
     "W........W",
-    "WWWWWWWWWW"
+    "W........W",
+    "W........W",
+    "WW1WWWWWWW"
   ],
   "portals": [
     {
       "triggerChar": "1",
-      "targetMapId": "Map02",
+      "targetMapId": "Map01",
       "targetSpawnId": 1
     }
   ]

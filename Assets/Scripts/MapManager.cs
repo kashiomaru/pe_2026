@@ -25,7 +25,7 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         // 最初のマップをロード
-        LoadMap("Lobby", 0);
+        LoadMap("Map01", 0);
     }
 
     public void LoadMap(string mapId, int spawnIndex)

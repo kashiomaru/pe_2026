@@ -14,50 +14,49 @@ public class MapGenerator : MonoBehaviour
     [Header("Cinemachine")]
     public CinemachineCamera cinemachineCamera;
 
-    [Header("Map Data (JSON)")]
-    [TextArea(10, 20)]
-    public string jsonMapData = 
-        "{\n" +
-        "  \"tileSize\": 2.0,\n" +
-        "  \"layout\": [\n" +
-        "    \"WWWWWWWW\",\n" +
-        "    \"W......W\",\n" +
-        "    \"W.P....W\",\n" +
-        "    \"W......W\",\n" +
-        "    \"WWWWWWWW\"\n" +
-        "  ]\n" +
-        "}";
+    // 生成されたプレイヤーインスタンス（使いまわし用）
+    private GameObject playerInstance = null;
 
-    // JSONデシリアライズ用のクラス定義
-    [System.Serializable]
-    public class MapSchema
+    /// <summary>
+    /// JSONからマップを生成する（MapManagerから呼び出される）
+    /// </summary>
+    public void GenerateMapFromJson(string json, int spawnIndex)
     {
-        public float tileSize;
-        public string[] layout;
-        // 将来的にここへ public EnemyData[] enemies; などを追加できる
-    }
+        // 今あるマップを消す（プレイヤーインスタンスは除外）
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject != playerInstance)
+            {
+                Destroy(child.gameObject);
+            }
+        }
 
-    private void Start()
-    {
-        GenerateMap();
-    }
-
-    void GenerateMap()
-    {
-        // 1. JSONパース
-        MapSchema mapData = JsonUtility.FromJson<MapSchema>(jsonMapData);
-
-        if (mapData == null || mapData.layout == null)
+        MapData data = JsonUtility.FromJson<MapData>(json);
+        
+        if (data == null || data.layout == null)
         {
             Debug.LogError("JSON format error!");
             return;
         }
 
-        float size = mapData.tileSize;
-        string[] rows = mapData.layout;
+        float size = data.tileSize;
+        string[] rows = data.layout;
         
+        // ポータル情報を辞書化して検索しやすくする
+        Dictionary<string, PortalDef> portalDict = new Dictionary<string, PortalDef>();
+        if (data.portals != null)
+        {
+            foreach (var p in data.portals)
+            {
+                portalDict[p.triggerChar] = p;
+            }
+        }
+
+        // スポーン候補位置リスト
+        List<Vector3> spawnPoints = new List<Vector3>();
+
         GameObject levelParent = new GameObject("Level_Generated");
-        Transform playerTransform = null; // 生成されたプレイヤーのTransformを保持
+        levelParent.transform.SetParent(transform);
 
         for (int z = 0; z < rows.Length; z++)
         {
@@ -65,6 +64,7 @@ public class MapGenerator : MonoBehaviour
             for (int x = 0; x < row.Length; x++)
             {
                 char tileType = row[x];
+                string charStr = tileType.ToString();
                 
                 // 配置座標 (Quadの中心)
                 Vector3 position = new Vector3(x * size, 0, -z * size);
@@ -75,7 +75,7 @@ public class MapGenerator : MonoBehaviour
                 {
                     // Quadはデフォルトで垂直なので、X軸に90度回転させて水平にする
                     GameObject floor = Instantiate(floorQuadPrefab, position, Quaternion.Euler(90, 0, 0), levelParent.transform);
-                    floor.transform.localScale = new Vector3(size, size, 1); // Quadは2D的なのでZではなくYスケールかも確認が必要（通常QuadはXY平面）
+                    floor.transform.localScale = new Vector3(size, size, 1);
                 }
 
                 // --- 壁・オブジェクトの生成 ---
@@ -86,30 +86,78 @@ public class MapGenerator : MonoBehaviour
                         break;
 
                     case 'P': // Player
-                        if (playerPrefab != null)
-                        {
-                            // プレイヤーを生成
-                            GameObject playerInstance = Instantiate(playerPrefab, position + Vector3.up * 0.1f, Quaternion.identity, levelParent.transform);
-                            playerTransform = playerInstance.transform;
-                            
-                            // CharacterControllerへの配慮
-                            var cc = playerInstance.GetComponent<CharacterController>();
-                            if(cc != null) cc.enabled = false;
-                            
-                            playerInstance.transform.position = position + Vector3.up * 0.1f;
-                            playerInstance.transform.rotation = Quaternion.identity;
-                            
-                            if(cc != null) cc.enabled = true;
-                        }
+                        // スポーン地点として記録（0番扱い）
+                        spawnPoints.Insert(0, position);
                         break;
                 }
                 
-                // 数字（'0'～'9'）の場合は壁とドアを配置
+                // 数字（'0'～'9'）の場合は壁とドアを配置、かつポータル処理
                 if (char.IsDigit(tileType))
                 {
+                    // 壁とドアを配置
                     GenerateWall(x, z, rows, position, size, levelParent.transform, true);
+                    
+                    // ポータルの処理
+                    if (portalDict.ContainsKey(charStr))
+                    {
+                        PortalDef def = portalDict[charStr];
+                        
+                        // ドアの位置を取得するため、壁生成と同じロジックで位置を計算
+                        List<Vector2Int> outsideDirections = GetOutsideDirections(x, z, rows);
+                        if (outsideDirections.Count > 0 && outsideDirections.Count < 3)
+                        {
+                            var dir = outsideDirections[0]; // 最初の外側方向を使用
+                            Vector3 offset = new Vector3(dir.x * size * 0.5f, 0, -dir.y * size * 0.5f);
+                            Vector3 wallPos = position + offset + Vector3.up * (size * 0.5f);
+                            Vector3 doorOffset = new Vector3(-dir.x * 0.01f, 0, dir.y * 0.01f);
+                            float doorHeight = doorQuadPrefab != null ? doorQuadPrefab.transform.localScale.y : size;
+                            Vector3 doorPos = wallPos + doorOffset;
+                            doorPos.y = doorHeight * 0.5f;
+                            
+                            // ポータル用のトリガーオブジェクトを作成
+                            GameObject portalTrigger = new GameObject($"Portal_{charStr}");
+                            portalTrigger.transform.position = doorPos;
+                            portalTrigger.transform.SetParent(levelParent.transform);
+                            
+                            // BoxColliderを追加（トリガー）
+                            BoxCollider trigger = portalTrigger.AddComponent<BoxCollider>();
+                            trigger.isTrigger = true;
+                            trigger.size = new Vector3(size * 0.5f, doorHeight, size * 0.5f);
+                            
+                            // MapPortalコンポーネントを追加
+                            MapPortal portalScript = portalTrigger.AddComponent<MapPortal>();
+                            portalScript.targetMapId = def.targetMapId;
+                            portalScript.targetSpawnId = def.targetSpawnId;
+                        }
+                        
+                        // スポーン地点として記録
+                        spawnPoints.Add(position);
+                    }
                 }
             }
+        }
+        
+        // プレイヤーを指定の位置へ移動
+        Transform playerTransform = null;
+        if (spawnPoints.Count > spawnIndex && playerPrefab != null)
+        {
+            Vector3 spawnPos = spawnPoints[spawnIndex] + Vector3.up * 0.1f;
+            
+            // 最初の生成時のみインスタンス化、その後は使いまわし
+            playerInstance = playerInstance ?? Instantiate(playerPrefab, spawnPos, Quaternion.identity, transform);
+            playerTransform = playerInstance.transform;
+                
+            // 既存のインスタンスを使いまわし
+            playerTransform = playerInstance.transform;
+            
+            // CharacterControllerへの配慮
+            var cc = playerInstance.GetComponent<CharacterController>();
+            if (cc != null) cc.enabled = false;
+            
+            playerInstance.transform.position = spawnPos;
+            playerInstance.transform.rotation = Quaternion.identity;
+            
+            if (cc != null) cc.enabled = true;
         }
         
         // CinemachineのTrackingTargetにプレイヤーのTransformを設定
@@ -124,17 +172,16 @@ public class MapGenerator : MonoBehaviour
         }
         else if (playerTransform == null)
         {
-            Debug.LogWarning("Player was not found in the map layout (no 'P' tile)");
+            Debug.LogWarning("Player was not found in the map layout (no spawn point)");
         }
     }
 
+
     /// <summary>
-    /// 壁を生成する。周囲の外側判定を行い、適切な方向に壁を配置する
+    /// 外側方向のリストを取得する
     /// </summary>
-    /// <param name="placeDoor">ドアを配置するかどうか</param>
-    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent, bool placeDoor)
+    List<Vector2Int> GetOutsideDirections(int x, int z, string[] rows)
     {
-        // 上下左右の外側判定
         List<Vector2Int> outsideDirections = new List<Vector2Int>();
         
         // 上（Zマイナス方向、rowsのインデックスが小さい方）
@@ -160,6 +207,18 @@ public class MapGenerator : MonoBehaviour
         {
             outsideDirections.Add(new Vector2Int(1, 0)); // 右
         }
+        
+        return outsideDirections;
+    }
+
+    /// <summary>
+    /// 壁を生成する。周囲の外側判定を行い、適切な方向に壁を配置する
+    /// </summary>
+    /// <param name="placeDoor">ドアを配置するかどうか</param>
+    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent, bool placeDoor)
+    {
+        // 上下左右の外側判定
+        List<Vector2Int> outsideDirections = GetOutsideDirections(x, z, rows);
         
         // 外側が3つ以上ある場合は壁を配置しない
         if (outsideDirections.Count >= 3)
