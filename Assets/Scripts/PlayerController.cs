@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI; // UI操作に必要
 using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(CharacterController))]
@@ -14,7 +13,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Battle System (PE Style)")]
     public float chargeTime = 3.0f; // ゲージが溜まるまでの秒数
-    public Slider atbSlider;        // UIのスライダーをアタッチ
     public GameObject gunObject;    // 手に持っている銃（表示/非表示用）
 
     [Header("Combat")]
@@ -113,17 +111,27 @@ public class PlayerController : MonoBehaviour
             _isBattleReady = true;
         }
 
-        // スライダーに反映
-        if (atbSlider != null)
-        {
-            atbSlider.value = _currentCharge / chargeTime;
-        }
-
         // ゲージMAX ＆ マウス左クリックで「構えモード」へ移行
         if (_isBattleReady && Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             EnterAimMode();
         }
+    }
+
+    // UIManagerから呼ばれる：ATBゲージの現在の比率を取得（0.0～1.0）
+    public float GetChargeRatio()
+    {
+        if (chargeTime <= 0f)
+        {
+            return 0f;
+        }
+        return _currentCharge / chargeTime;
+    }
+
+    // UIManagerから呼ばれる：ATBゲージが最大かどうかを取得
+    public bool IsBattleReady()
+    {
+        return _isBattleReady;
     }
 
     void EnterAimMode()
