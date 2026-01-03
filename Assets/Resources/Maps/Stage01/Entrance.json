@@ -1,0 +1,22 @@
+{
+  "mapId": "Stage01_Entrance",
+  "tileSize": 2.5,
+  "layout": [
+    "WWWWWWWWWW",
+    "W........W",
+    "W........W",
+    "W...P....W",
+    "W........W",
+    "W........1",
+    "W........W",
+    "WWWWWWWWWW"
+  ],
+  "portals": [
+    {
+      "triggerChar": "1",
+      "targetMapId": "Stage01_Corridor",
+      "targetSpawnId": 1
+    }
+  ]
+}
+

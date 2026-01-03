@@ -1,0 +1,32 @@
+{
+  "mapId": "Stage01_Corridor",
+  "tileSize": 2.5,
+  "layout": [
+    "WWWWWWWWWW",
+    "W........W",
+    "W...1....W",
+    "W........W",
+    "W........W",
+    "W.2......3",
+    "W........W",
+    "WWWWWWWWWW"
+  ],
+  "portals": [
+    {
+      "triggerChar": "1",
+      "targetMapId": "Stage01_Entrance",
+      "targetSpawnId": 1
+    },
+    {
+      "triggerChar": "2",
+      "targetMapId": "Stage01_GreenRoom",
+      "targetSpawnId": 1
+    },
+    {
+      "triggerChar": "3",
+      "targetMapId": "Stage01_Stage",
+      "targetSpawnId": 1
+    }
+  ]
+}
+
