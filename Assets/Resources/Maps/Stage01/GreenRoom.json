@@ -2,20 +2,16 @@
   "mapId": "Stage01_GreenRoom",
   "tileSize": 2.5,
   "layout": [
-    "WWWWWWWWWW",
-    "W........W",
-    "W........W",
-    "W........W",
-    "W........W",
-    "W........1",
-    "W........W",
-    "WWWWWWWWWW"
+    "WWWWWWWWW",
+    "W.......W",
+    "W.......W",
+    "WWWWW1WWW"
   ],
   "portals": [
     {
       "triggerChar": "1",
       "targetMapId": "Corridor",
-      "targetSpawnId": 1
+      "targetSpawnId": 2
     }
   ]
 }

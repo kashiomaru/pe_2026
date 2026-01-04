@@ -2,13 +2,8 @@
   "mapId": "Stage01_Corridor",
   "tileSize": 2.5,
   "layout": [
-    "WWWWWWWWWW",
-    "W........W",
-    "W...1....W",
-    "W........W",
-    "W........W",
-    "W.2......3",
-    "W........W",
+    "WWWWWW2WWW",
+    "1........3",
     "WWWWWWWWWW"
   ],
   "portals": [
