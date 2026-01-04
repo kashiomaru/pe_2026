@@ -18,8 +18,8 @@ public class MapManager : MonoBehaviour
         // マップデータを辞書に登録 (ID -> JSONの中身)
         foreach (var file in mapFiles)
         {
-            // ※本来はJSONの中のmapIdを読むべきだが、今はファイル名をIDとする
-            _mapDatabase[file.name] = file.text;
+            MapData data = JsonUtility.FromJson<MapData>(file.text);
+            _mapDatabase[data.mapId] = file.text;
         }
     }
 

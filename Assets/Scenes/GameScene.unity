@@ -1101,7 +1101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapManager
   mapGenerator: {fileID: 1829310055}
-  currentMapId: Entrance
+  currentMapId: Stage01_Entrance
   mapFiles:
   - {fileID: 4900000, guid: d61ef1196a96142b4977e6f4f7b0e925, type: 3}
   - {fileID: 4900000, guid: 714c493ef3f84497e8918fdad07ed466, type: 3}
