@@ -14,9 +14,12 @@
   "portals": [
     {
       "triggerChar": "1",
-      "targetMapId": "Stage01_Corridor",
-      "targetSpawnId": 1
+      "targetMapId": "Corridor",
+      "targetSpawnId": 1,
+      "doorPrefabName": "Prefabs/Door02"
     }
-  ]
+  ],
+  "floorPrefabName": "Prefabs/Floor02",
+  "wallPrefabName": "Prefabs/Wall02"
 }
 

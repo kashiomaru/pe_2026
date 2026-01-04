@@ -14,7 +14,7 @@
   "portals": [
     {
       "triggerChar": "1",
-      "targetMapId": "Stage01_Corridor",
+      "targetMapId": "Corridor",
       "targetSpawnId": 1
     }
   ]

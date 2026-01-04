@@ -14,17 +14,17 @@
   "portals": [
     {
       "triggerChar": "1",
-      "targetMapId": "Stage01_Entrance",
+      "targetMapId": "Entrance",
       "targetSpawnId": 1
     },
     {
       "triggerChar": "2",
-      "targetMapId": "Stage01_GreenRoom",
+      "targetMapId": "GreenRoom",
       "targetSpawnId": 1
     },
     {
       "triggerChar": "3",
-      "targetMapId": "Stage01_Stage",
+      "targetMapId": "Stage",
       "targetSpawnId": 1
     }
   ]

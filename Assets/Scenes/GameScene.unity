@@ -1101,9 +1101,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapManager
   mapGenerator: {fileID: 1829310055}
+  currentMapId: Entrance
   mapFiles:
   - {fileID: 4900000, guid: d61ef1196a96142b4977e6f4f7b0e925, type: 3}
   - {fileID: 4900000, guid: 714c493ef3f84497e8918fdad07ed466, type: 3}
+  - {fileID: 4900000, guid: 6974380ba1e9b4586bf6dad9c8725ae1, type: 3}
+  - {fileID: 4900000, guid: 796ea2bfb5755404684b8c813e28d8f1, type: 3}
+  - {fileID: 4900000, guid: 4288e9a2c5c69430597861325ed7c08e, type: 3}
+  - {fileID: 4900000, guid: a0e3a36ed1f0d4faba7f343f51b97e09, type: 3}
 --- !u!1 &1645489253
 GameObject:
   m_ObjectHideFlags: 0

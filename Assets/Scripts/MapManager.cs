@@ -6,6 +6,7 @@ public class MapManager : MonoBehaviour
 {
     public static MapManager Instance; // どこからでも呼べるようにシングルトン化
     public MapGenerator mapGenerator;  // 既存のジェネレーター
+    public string currentMapId;
     
     // 全マップデータのリスト（簡易的にInspectorで登録、またはResourcesからロード）
     public TextAsset[] mapFiles; 
@@ -25,7 +26,7 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         // 最初のマップをロード
-        LoadMap("Map01", 0);
+        LoadMap(currentMapId, 0);
     }
 
     public void LoadMap(string mapId, int spawnNumber)

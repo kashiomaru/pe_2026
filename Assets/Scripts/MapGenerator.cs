@@ -18,6 +18,24 @@ public class MapGenerator : MonoBehaviour
     private GameObject playerInstance = null;
 
     /// <summary>
+    /// Resourcesからプレハブをロードする（存在しない場合はnullを返す）
+    /// </summary>
+    private GameObject LoadPrefabFromResources(string prefabName)
+    {
+        if (string.IsNullOrEmpty(prefabName))
+        {
+            return null;
+        }
+        
+        GameObject prefab = Resources.Load<GameObject>(prefabName);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"Prefab not found in Resources: {prefabName}");
+        }
+        return prefab;
+    }
+
+    /// <summary>
     /// JSONからマップを生成する（MapManagerから呼び出される）
     /// </summary>
     public void GenerateMapFromJson(string json, int spawnNumber)
@@ -38,6 +56,10 @@ public class MapGenerator : MonoBehaviour
             Debug.LogError("JSON format error!");
             return;
         }
+
+        // JSONからプレハブ名を読み取り、Resourcesからロード（なければデフォルトを使用）
+        GameObject floorPrefab = LoadPrefabFromResources(data.floorPrefabName) ?? floorQuadPrefab;
+        GameObject wallPrefab = LoadPrefabFromResources(data.wallPrefabName) ?? wallQuadPrefab;
 
         float size = data.tileSize;
         string[] rows = data.layout;
@@ -74,7 +96,7 @@ public class MapGenerator : MonoBehaviour
                 if (tileType != ' ') 
                 {
                     // Quadはデフォルトで垂直なので、X軸に90度回転させて水平にする
-                    GameObject floor = Instantiate(floorQuadPrefab, position, Quaternion.Euler(90, 0, 0), levelParent.transform);
+                    GameObject floor = Instantiate(floorPrefab, position, Quaternion.Euler(90, 0, 0), levelParent.transform);
                     floor.transform.localScale = new Vector3(size, size, 1);
                 }
 
@@ -82,7 +104,7 @@ public class MapGenerator : MonoBehaviour
                 switch (tileType)
                 {
                     case 'W': // Wall
-                        GenerateWall(x, z, rows, position, size, levelParent.transform, false);
+                        GenerateWall(x, z, rows, position, size, levelParent.transform, false, wallPrefab, null);
                         break;
 
                     case 'P': // Player
@@ -94,8 +116,20 @@ public class MapGenerator : MonoBehaviour
                 // 数字（'0'～'9'）の場合は壁とドアを配置、かつポータル処理
                 if (char.IsDigit(tileType))
                 {
+                    // ポータルのドアプレハブを取得（JSONから読み取る、なければデフォルト）
+                    GameObject doorPrefab = null;
+                    if (portalDict.ContainsKey(charStr))
+                    {
+                        PortalDef def = portalDict[charStr];
+                        doorPrefab = LoadPrefabFromResources(def.doorPrefabName) ?? doorQuadPrefab;
+                    }
+                    else
+                    {
+                        doorPrefab = doorQuadPrefab;
+                    }
+                    
                     // 壁とドアを配置
-                    GenerateWall(x, z, rows, position, size, levelParent.transform, true);
+                    GenerateWall(x, z, rows, position, size, levelParent.transform, true, wallPrefab, doorPrefab);
                     
                     // ポータルの処理
                     if (portalDict.ContainsKey(charStr))
@@ -110,7 +144,7 @@ public class MapGenerator : MonoBehaviour
                             Vector3 offset = new Vector3(dir.x * size * 0.5f, 0, -dir.y * size * 0.5f);
                             Vector3 wallPos = position + offset + Vector3.up * (size * 0.5f);
                             Vector3 doorOffset = new Vector3(-dir.x * 0.01f, 0, dir.y * 0.01f);
-                            float doorHeight = doorQuadPrefab != null ? doorQuadPrefab.transform.localScale.y : size;
+                            float doorHeight = doorPrefab != null ? doorPrefab.transform.localScale.y : size;
                             Vector3 doorPos = wallPos + doorOffset;
                             doorPos.y = doorHeight * 0.5f;
                             
@@ -216,8 +250,14 @@ public class MapGenerator : MonoBehaviour
     /// 壁を生成する。周囲の外側判定を行い、適切な方向に壁を配置する
     /// </summary>
     /// <param name="placeDoor">ドアを配置するかどうか</param>
-    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent, bool placeDoor)
+    /// <param name="wallPrefabToUse">使用する壁プレハブ（nullの場合はデフォルト）</param>
+    /// <param name="doorPrefabToUse">使用するドアプレハブ（nullの場合はデフォルト）</param>
+    void GenerateWall(int x, int z, string[] rows, Vector3 position, float size, Transform parent, bool placeDoor, GameObject wallPrefabToUse, GameObject doorPrefabToUse)
     {
+        // 使用するプレハブを決定（引数で指定されていればそれを使用、なければデフォルト）
+        GameObject wallPrefab = wallPrefabToUse ?? wallQuadPrefab;
+        GameObject doorPrefab = doorPrefabToUse ?? doorQuadPrefab;
+        
         // 上下左右の外側判定
         List<Vector2Int> outsideDirections = GetOutsideDirections(x, z, rows);
         
@@ -234,17 +274,17 @@ public class MapGenerator : MonoBehaviour
             Vector3 offset = new Vector3(dir.x * size * 0.5f, 0, -dir.y * size * 0.5f);
             Vector3 wallPos = position + offset + Vector3.up * (size * 0.5f);
             Quaternion rotation = GetWallRotation(dir);
-            GameObject wall = Instantiate(wallQuadPrefab, wallPos, rotation, parent);
+            GameObject wall = Instantiate(wallPrefab, wallPos, rotation, parent);
             wall.transform.localScale = new Vector3(size, size, 1);
             
             // ドアを配置する場合、壁より0.01だけ内側に配置
-            if (placeDoor && doorQuadPrefab != null)
+            if (placeDoor && doorPrefab != null)
             {
                 // 内側方向に0.01移動（外側方向の逆方向）
                 Vector3 doorOffset = new Vector3(-dir.x * 0.01f, 0, dir.y * 0.01f);
                 
                 // ドアの高さをScaleから取得
-                float doorHeight = doorQuadPrefab.transform.localScale.y;
+                float doorHeight = doorPrefab.transform.localScale.y;
                 
                 // 壁の位置を基準に、内側に0.01移動し、床に設置する位置を計算
                 // 壁のY座標（size * 0.5f）から、ドアの高さの半分（doorHeight * 0.5f）に変更
@@ -252,7 +292,7 @@ public class MapGenerator : MonoBehaviour
                 doorPos.y = doorHeight * 0.5f; // 床に設置
                 
                 // 実際のドアを配置（元のサイズのまま）
-                GameObject door = Instantiate(doorQuadPrefab, doorPos, rotation, parent);
+                GameObject door = Instantiate(doorPrefab, doorPos, rotation, parent);
             }
         }
     }
