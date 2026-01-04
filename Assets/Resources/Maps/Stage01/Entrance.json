@@ -2,13 +2,11 @@
   "mapId": "Stage01_Entrance",
   "tileSize": 2.5,
   "layout": [
-    "WWWWWWWWWW",
-    "W........W",
-    "W........W",
-    "WP.......1",
-    "W........W",
-    "W........W",
-    "WWWWWWWWWW"
+    "WWWWWW",
+    "W....W",
+    "WP...1",
+    "W....W",
+    "WWWWWW"
   ],
   "portals": [
     {
