@@ -110,29 +110,64 @@ public class UIManager : MonoBehaviour
                 RectTransform rectTransform = damageTextObj.GetComponent<RectTransform>();
                 if (rectTransform != null)
                 {
-                    if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                    // RenderTextureに描画しているカメラを探す
+                    Camera renderCamera = FindRenderTextureCamera();
+                    
+                    // RenderTextureを使っている場合は、そのカメラでViewport座標を取得
+                    if (renderCamera != null)
                     {
-                        // Screen Space - Overlayの場合は、Camera.mainを使用
-                        Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition.Value);
-                        rectTransform.position = screenPos;
+                        // Viewport座標を取得（0-1の範囲）
+                        Vector3 viewportPos = renderCamera.WorldToViewportPoint(worldPosition.Value);
+                        
+                        // RawImageを探す（RenderTextureを表示しているRawImage）
+                        UnityEngine.UI.RawImage rawImage = canvas.GetComponentInChildren<UnityEngine.UI.RawImage>();
+                        if (rawImage != null)
+                        {
+                            RectTransform rawImageRect = rawImage.GetComponent<RectTransform>();
+                            if (rawImageRect != null)
+                            {
+                                // RawImageのRectTransformのサイズと位置を取得
+                                Rect rawImageRectWorld = GetWorldRect(rawImageRect);
+                                
+                                // Viewport座標をRawImageのローカル座標に変換
+                                float x = rawImageRectWorld.x + viewportPos.x * rawImageRectWorld.width;
+                                float y = rawImageRectWorld.y + viewportPos.y * rawImageRectWorld.height;
+                                
+                                // Canvas座標に変換
+                                if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                                {
+                                    rectTransform.position = new Vector3(x, y, 0);
+                                }
+                                else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
+                                {
+                                    Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
+                                    Vector3 worldPos = new Vector3(x, y, canvasCamera.nearClipPlane);
+                                    Vector3 screenPos = canvasCamera.WorldToScreenPoint(worldPos);
+                                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                                        canvas.transform as RectTransform,
+                                        screenPos,
+                                        canvasCamera,
+                                        out Vector2 localPoint
+                                    );
+                                    rectTransform.localPosition = localPoint;
+                                }
+                            }
+                            else
+                            {
+                                // RawImageが見つからない場合は通常の処理にフォールバック
+                                FallbackDamageTextPosition(canvas, rectTransform, worldPosition.Value, renderCamera);
+                            }
+                        }
+                        else
+                        {
+                            // RawImageが見つからない場合は通常の処理にフォールバック
+                            FallbackDamageTextPosition(canvas, rectTransform, worldPosition.Value, renderCamera);
+                        }
                     }
-                    else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
+                    else
                     {
-                        // Screen Space - Cameraの場合は、Canvasのカメラを使用
-                        Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
-                        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldPosition.Value);
-                        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                            canvas.transform as RectTransform,
-                            screenPos,
-                            canvasCamera,
-                            out Vector2 localPoint
-                        );
-                        rectTransform.localPosition = localPoint;
-                    }
-                    else if (canvas.renderMode == RenderMode.WorldSpace)
-                    {
-                        // World Spaceの場合は、直接ワールド座標を使用
-                        rectTransform.position = worldPosition.Value;
+                        // RenderTextureを使っていない場合は通常の処理
+                        FallbackDamageTextPosition(canvas, rectTransform, worldPosition.Value, Camera.main);
                     }
                 }
             }
@@ -159,6 +194,78 @@ public class UIManager : MonoBehaviour
         if (damageTextObj != null)
         {
             Destroy(damageTextObj);
+        }
+    }
+
+    /// <summary>
+    /// RenderTextureに描画しているカメラを検索
+    /// </summary>
+    /// <returns>RenderTextureに描画しているカメラ、見つからない場合はnull</returns>
+    Camera FindRenderTextureCamera()
+    {
+        Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+        foreach (Camera cam in cameras)
+        {
+            if (cam.targetTexture != null)
+            {
+                return cam;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// RectTransformのワールド座標での矩形を取得
+    /// </summary>
+    Rect GetWorldRect(RectTransform rectTransform)
+    {
+        Vector3[] corners = new Vector3[4];
+        rectTransform.GetWorldCorners(corners);
+        
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+        
+        foreach (Vector3 corner in corners)
+        {
+            if (corner.x < minX) minX = corner.x;
+            if (corner.x > maxX) maxX = corner.x;
+            if (corner.y < minY) minY = corner.y;
+            if (corner.y > maxY) maxY = corner.y;
+        }
+        
+        return new Rect(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    /// <summary>
+    /// 通常の座標変換処理（フォールバック）
+    /// </summary>
+    void FallbackDamageTextPosition(Canvas canvas, RectTransform rectTransform, Vector3 worldPosition, Camera camera)
+    {
+        if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            // Screen Space - Overlayの場合は、Camera.mainを使用
+            Vector2 screenPos = camera.WorldToScreenPoint(worldPosition);
+            rectTransform.position = screenPos;
+        }
+        else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
+        {
+            // Screen Space - Cameraの場合は、Canvasのカメラを使用
+            Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : camera;
+            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvas.transform as RectTransform,
+                screenPos,
+                canvasCamera,
+                out Vector2 localPoint
+            );
+            rectTransform.localPosition = localPoint;
+        }
+        else if (canvas.renderMode == RenderMode.WorldSpace)
+        {
+            // World Spaceの場合は、直接ワールド座標を使用
+            rectTransform.position = worldPosition;
         }
     }
 }

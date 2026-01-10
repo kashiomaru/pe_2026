@@ -46,7 +46,7 @@ public class BattleManager : MonoBehaviour
         if (UIManager.Instance != null)
         {
             // 敵の位置にダメージテキストを表示
-            Vector3 enemyPosition = enemy.transform.position + Vector3.up * 1.5f; // 敵の頭上に表示
+            Vector3 enemyPosition = enemy.transform.position;
             UIManager.Instance.ShowDamageText(damage, enemyPosition);
         }
 
@@ -82,7 +82,7 @@ public class BattleManager : MonoBehaviour
         if (UIManager.Instance != null)
         {
             // プレイヤーの位置にダメージテキストを表示
-            Vector3 playerPosition = player.transform.position + Vector3.up * 1.5f; // プレイヤーの頭上に表示
+            Vector3 playerPosition = player.transform.position;
             UIManager.Instance.ShowDamageText(damage, playerPosition);
         }
     }
