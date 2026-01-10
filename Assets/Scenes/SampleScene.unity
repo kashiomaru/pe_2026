@@ -1700,6 +1700,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MapGenerator
       objectReference: {fileID: 0}
+    - target: {fileID: 2328808557122119121, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4815202911296690113, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.48626
