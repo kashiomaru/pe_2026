@@ -3,12 +3,28 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance; // シングルトンインスタンス
+
     [Header("UI References")]
     [SerializeField] private Slider atbSlider; // ATBゲージのスライダー
     [SerializeField] private GameObject damageTextPrefab; // ダメージ表示用のPrefab（UIDamageがアタッチされている）
     [SerializeField] private Transform damageTextParent; // ダメージテキストの親（Canvasなど）
 
     private PlayerController playerController; // プレイヤーコントローラー（タグから自動取得）
+
+    void Awake()
+    {
+        // シングルトンの設定
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("UIManager instance already exists. Destroying duplicate.");
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -84,31 +100,40 @@ public class UIManager : MonoBehaviour
         // ワールド座標が指定されている場合は、ワールド座標をスクリーン座標に変換
         if (worldPosition.HasValue)
         {
-            // CanvasがScreen Space - Overlayの場合は、Camera.mainを使用
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            // Canvasを取得（親から探す、なければ自分自身から探す）
+            Canvas canvas = damageTextParent != null 
+                ? damageTextParent.GetComponentInParent<Canvas>() 
+                : GetComponentInParent<Canvas>();
+            
+            if (canvas != null)
             {
-                Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition.Value);
                 RectTransform rectTransform = damageTextObj.GetComponent<RectTransform>();
                 if (rectTransform != null)
                 {
-                    rectTransform.position = screenPos;
-                }
-            }
-            else if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera)
-            {
-                // Screen Space - Cameraの場合は、Canvasのカメラを使用
-                Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, worldPosition.Value);
-                RectTransform rectTransform = damageTextObj.GetComponent<RectTransform>();
-                if (rectTransform != null)
-                {
-                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                        canvas.transform as RectTransform,
-                        screenPos,
-                        canvas.worldCamera,
-                        out Vector2 localPoint
-                    );
-                    rectTransform.localPosition = localPoint;
+                    if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                    {
+                        // Screen Space - Overlayの場合は、Camera.mainを使用
+                        Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPosition.Value);
+                        rectTransform.position = screenPos;
+                    }
+                    else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
+                    {
+                        // Screen Space - Cameraの場合は、Canvasのカメラを使用
+                        Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
+                        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldPosition.Value);
+                        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                            canvas.transform as RectTransform,
+                            screenPos,
+                            canvasCamera,
+                            out Vector2 localPoint
+                        );
+                        rectTransform.localPosition = localPoint;
+                    }
+                    else if (canvas.renderMode == RenderMode.WorldSpace)
+                    {
+                        // World Spaceの場合は、直接ワールド座標を使用
+                        rectTransform.position = worldPosition.Value;
+                    }
                 }
             }
         }

@@ -42,6 +42,14 @@ public class BattleManager : MonoBehaviour
         
         Debug.Log($"{enemy.gameObject.name} took {damage} damage! HP: {currentHp} -> {newHp}/{maxHp}");
 
+        // ダメージ表示（UIManager経由）
+        if (UIManager.Instance != null)
+        {
+            // 敵の位置にダメージテキストを表示
+            Vector3 enemyPosition = enemy.transform.position + Vector3.up * 1.5f; // 敵の頭上に表示
+            UIManager.Instance.ShowDamageText(damage, enemyPosition);
+        }
+
         // 被弾演出（赤く点滅など）を入れるならここ
         // 例: enemy.PlayHitEffect();
 
@@ -69,6 +77,14 @@ public class BattleManager : MonoBehaviour
         // プレイヤーのダメージ処理（将来的に実装）
         // 例: player.TakeDamage(damage);
         Debug.Log($"Player took {damage} damage from {attacker?.name ?? "unknown"}");
+        
+        // ダメージ表示（UIManager経由）
+        if (UIManager.Instance != null)
+        {
+            // プレイヤーの位置にダメージテキストを表示
+            Vector3 playerPosition = player.transform.position + Vector3.up * 1.5f; // プレイヤーの頭上に表示
+            UIManager.Instance.ShowDamageText(damage, playerPosition);
+        }
     }
 
     /// <summary>
