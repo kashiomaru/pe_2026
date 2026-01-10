@@ -178,21 +178,6 @@ public class PlayerController : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
         }
-        else
-        {
-            // 敵が見つからない場合はカメラの前方を向く（フォールバック）
-            Transform cam = GetCameraTransform();
-            if (cam != null)
-            {
-                Vector3 lookDirection = -cam.forward;
-                lookDirection.y = 0f;
-                if (lookDirection.magnitude > 0.1f)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-                }
-            }
-        }
 
         // マウス左クリックで発砲
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
