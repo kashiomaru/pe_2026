@@ -347,7 +347,17 @@ public class PlayerController : MonoBehaviour
                 Enemy enemy = _targetEnemy.GetComponent<Enemy>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(1); // 1ダメージ与える
+                    // BattleManagerを通してダメージ処理を行う
+                    if (BattleManager.Instance != null)
+                    {
+                        BattleManager.Instance.DealDamageToEnemy(enemy, 1, gameObject);
+                    }
+                    else
+                    {
+                        // BattleManagerが存在しない場合は直接処理（フォールバック）
+                        Debug.LogWarning("BattleManager not found. Using fallback damage handling.");
+                        enemy.TakeDamage(1);
+                    }
                     
                     // ★ここにヒットエフェクト（火花や血）をInstantiateすると気持ちいい
                 }

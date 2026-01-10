@@ -16,7 +16,6 @@ public class RangeDomeController : MonoBehaviour
     private MeshFilter _meshFilter;
     private Mesh _originalMesh; // 元のメッシュ（読み取り専用の可能性があるため保持）
     private Mesh _wireframeMesh; // ワイヤフレーム用のメッシュ
-    private bool _isWireframeMode = false; // ワイヤフレームモードかどうか
     
     void Awake()
     {
@@ -80,7 +79,6 @@ public class RangeDomeController : MonoBehaviour
         
         // ワイヤフレームメッシュを適用
         _meshFilter.mesh = _wireframeMesh;
-        _isWireframeMode = true;
     }
     
     /// <summary>

@@ -25,21 +25,46 @@ public class Enemy : MonoBehaviour
         ApplyGravity();
     }
 
-    // ダメージを受ける処理
+    // ダメージを受ける処理（BattleManager経由で呼ばれる）
     public void TakeDamage(int damage)
     {
-        _currentHp -= damage;
-        Debug.Log($"{gameObject.name} took {damage} damage! HP: {_currentHp}");
-
-        // 被弾演出（赤く点滅など）を入れるならここ
-
-        if (_currentHp <= 0)
+        // BattleManagerを通してダメージ処理を行う
+        if (BattleManager.Instance != null)
         {
-            Die();
+            BattleManager.Instance.DealDamageToEnemy(this, damage);
+        }
+        else
+        {
+            // BattleManagerが存在しない場合は直接処理（フォールバック）
+            Debug.LogWarning("BattleManager not found. Using fallback damage handling.");
+            _currentHp -= damage;
+            if (_currentHp <= 0)
+            {
+                Die();
+            }
         }
     }
+    
+    // BattleManagerから呼ばれる：現在のHPを取得
+    public int GetCurrentHp()
+    {
+        return _currentHp;
+    }
+    
+    // BattleManagerから呼ばれる：現在のHPを設定
+    public void SetCurrentHp(int hp)
+    {
+        _currentHp = Mathf.Max(0, hp);
+        // 死亡処理はBattleManagerで行うため、ここでは呼ばない
+    }
+    
+    // BattleManagerから呼ばれる：最大HPを取得
+    public int GetMaxHp()
+    {
+        return maxHp;
+    }
 
-    void Die()
+    public void Die()
     {
         Debug.Log("Enemy Defeated!");
         // 死亡エフェクトや音を入れるならここ
