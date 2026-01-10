@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     [Header("Combat")]
     public Transform gunMuzzle; // 銃口の位置（空のGameObjectを銃の先に配置して割り当てる）
     public LayerMask enemyLayer; // Enemyレイヤーを指定
-    public float attackRange = 10f; // 攻撃可能距離
+    public float attackRange = 8f; // 攻撃可能距離
 
     [Header("References")]
     public Animator animator;
@@ -140,8 +140,8 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsAiming", true); // 上半身レイヤーが有効になる
         if (gunObject != null) gunObject.SetActive(true);
 
-        // ドームをスケールアップアニメーション付きで表示
-        if (rangeDome != null) rangeDome.Show();
+        // ドームをスケールアップアニメーション付きで表示（attackRangeをスケールとして使用）
+        if (rangeDome != null) rangeDome.Show(attackRange);
 
         // 一番近いEnemyを検索
         _targetEnemy = FindNearestEnemy();
