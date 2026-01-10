@@ -10,6 +10,7 @@ public class MapGenerator : MonoBehaviour
     public GameObject wallQuadPrefab;
     public GameObject doorQuadPrefab;
     public GameObject playerPrefab;
+    public GameObject enemyPrefab; // 敵のプレハブ
     
     [Header("Cinemachine")]
     public CinemachineCamera cinemachineCamera;
@@ -110,6 +111,16 @@ public class MapGenerator : MonoBehaviour
                     case 'P': // Player
                         // スポーン地点として記録（0番）
                         spawnPoints[0] = position;
+                        break;
+                    
+                    case 'E': // Enemy
+                        // 敵を配置
+                        if (enemyPrefab != null)
+                        {
+                            Vector3 enemyPos = position + Vector3.up * 0.1f; // 床の上に少し浮かせる
+                            GameObject enemy = Instantiate(enemyPrefab, enemyPos, Quaternion.identity, levelParent.transform);
+                            enemy.name = $"Enemy_{x}_{z}"; // デバッグ用に名前を設定
+                        }
                         break;
                 }
                 

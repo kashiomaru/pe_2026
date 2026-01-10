@@ -48,6 +48,5 @@ MonoBehaviour:
   wallQuadPrefab: {fileID: 134090814964348493, guid: 8092c35bc07f24a46b179fde6b7b747f, type: 3}
   doorQuadPrefab: {fileID: 4257837820221677113, guid: be43bd662478c4f5d94388921d3bee3f, type: 3}
   playerPrefab: {fileID: 3708988504835173406, guid: 5b4481e6648d2455e9a0bd64ca71033b, type: 3}
+  enemyPrefab: {fileID: 5879343684935955685, guid: 579b6679cbccb4fa88003c6c38fd69b7, type: 3}
   cinemachineCamera: {fileID: 0}
-  jsonMapData: "{\n  \"tileSize\": 2.5,\n  \"layout\": [\n    \"WWWWWWWW\",\n   
-    \"W......W\",\n    \"W.P....W\",\n    \"W......W\",\n    \"WWWWWWWW\"\n  ]\n}"
