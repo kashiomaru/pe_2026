@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour
         // ★ここで時間が止まる演出を入れるとPEっぽくなります
     }
 
-    void ExitAimMode()
+    void ExitAimMode(bool resetCharge = true)
     {
         _isAiming = false;
         animator.SetBool("IsAiming", false);
@@ -161,8 +161,11 @@ public class PlayerController : MonoBehaviour
         // ターゲットをクリア
         _targetEnemy = null;
         
-        // ゲージをリセット
-        _currentCharge = 0f;
+        // ゲージをリセット（発砲後の終了時のみ）
+        if (resetCharge)
+        {
+            _currentCharge = 0f;
+        }
     }
 
     void HandleAiming()
@@ -194,7 +197,7 @@ public class PlayerController : MonoBehaviour
         // キャンセル処理（右クリック）
         if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame)
         {
-            ExitAimMode(); // 撃たずに戻る
+            ExitAimMode(resetCharge: false); // 撃たずに戻る（ゲージはリセットしない）
         }
     }
 
