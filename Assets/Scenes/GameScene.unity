@@ -866,6 +866,9 @@ MonoBehaviour:
   atbSlider: {fileID: 536110204}
   damageTextPrefab: {fileID: 7020668666290754451, guid: 9d9a3adf1768e497a9d24443c6b3f46f, type: 3}
   damageTextParent: {fileID: 785969632}
+  canvas: {fileID: 785969631}
+  renderTextureCamera: {fileID: 330585545}
+  renderTextureRawImageRect: {fileID: 1360572231}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

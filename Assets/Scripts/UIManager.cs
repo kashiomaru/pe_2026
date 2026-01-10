@@ -9,6 +9,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider atbSlider; // ATBゲージのスライダー
     [SerializeField] private GameObject damageTextPrefab; // ダメージ表示用のPrefab（UIDamageがアタッチされている）
     [SerializeField] private Transform damageTextParent; // ダメージテキストの親（Canvasなど）
+    [SerializeField] private Canvas canvas; // ダメージテキストを表示するCanvas
+    
+    [Header("RenderTexture Settings")]
+    [SerializeField] private Camera renderTextureCamera; // RenderTextureに描画しているカメラ
+    [SerializeField] private RectTransform renderTextureRawImageRect; // RenderTextureを表示しているRawImageのRectTransform
 
     private PlayerController playerController; // プレイヤーコントローラー（タグから自動取得）
 
@@ -91,85 +96,70 @@ public class UIManager : MonoBehaviour
             return;
         }
 
+        // ワールド座標が指定されていない場合は処理を中断
+        if (worldPosition == null)
+        {
+            return;
+        }
+
+        // Canvasの参照を確認
+        if (canvas == null)
+        {
+            Debug.LogWarning("UIManager: Canvas is not assigned! Please assign it in the Inspector.");
+            return;
+        }
+        
+        // RenderTextureに描画しているカメラの参照を確認
+        if (renderTextureCamera == null)
+        {
+            Debug.LogWarning("UIManager: RenderTexture Camera is not assigned! Please assign it in the Inspector.");
+            return;
+        }
+        
+        // RenderTextureを表示しているRawImageのRectTransformの参照を確認
+        if (renderTextureRawImageRect == null)
+        {
+            Debug.LogWarning("UIManager: RenderTexture RawImage RectTransform is not assigned! Please assign it in the Inspector.");
+            return;
+        }
+
         // 親を決定（指定されていない場合は自分自身）
         Transform parent = damageTextParent != null ? damageTextParent : transform;
 
-        // プレハブをインスタンス化
+        // すべてのチェックが完了したら、プレハブをインスタンス化
         GameObject damageTextObj = Instantiate(damageTextPrefab, parent);
         
-        // ワールド座標が指定されている場合は、ワールド座標をスクリーン座標に変換
-        if (worldPosition.HasValue)
+        // ワールド座標をスクリーン座標に変換
+        RectTransform rectTransform = damageTextObj.GetComponent<RectTransform>();
+        if (rectTransform != null)
         {
-            // Canvasを取得（親から探す、なければ自分自身から探す）
-            Canvas canvas = damageTextParent != null 
-                ? damageTextParent.GetComponentInParent<Canvas>() 
-                : GetComponentInParent<Canvas>();
+            // Viewport座標を取得（0-1の範囲）
+            Vector3 viewportPos = renderTextureCamera.WorldToViewportPoint(worldPosition.Value);
             
-            if (canvas != null)
+            // RawImageのRectTransformのサイズと位置を取得
+            Rect rawImageRectWorld = GetWorldRect(renderTextureRawImageRect);
+            
+            // Viewport座標をRawImageのローカル座標に変換
+            float x = rawImageRectWorld.x + viewportPos.x * rawImageRectWorld.width;
+            float y = rawImageRectWorld.y + viewportPos.y * rawImageRectWorld.height;
+            
+            // Canvas座標に変換
+            if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
             {
-                RectTransform rectTransform = damageTextObj.GetComponent<RectTransform>();
-                if (rectTransform != null)
-                {
-                    // RenderTextureに描画しているカメラを探す
-                    Camera renderCamera = FindRenderTextureCamera();
-                    
-                    // RenderTextureを使っている場合は、そのカメラでViewport座標を取得
-                    if (renderCamera != null)
-                    {
-                        // Viewport座標を取得（0-1の範囲）
-                        Vector3 viewportPos = renderCamera.WorldToViewportPoint(worldPosition.Value);
-                        
-                        // RawImageを探す（RenderTextureを表示しているRawImage）
-                        UnityEngine.UI.RawImage rawImage = canvas.GetComponentInChildren<UnityEngine.UI.RawImage>();
-                        if (rawImage != null)
-                        {
-                            RectTransform rawImageRect = rawImage.GetComponent<RectTransform>();
-                            if (rawImageRect != null)
-                            {
-                                // RawImageのRectTransformのサイズと位置を取得
-                                Rect rawImageRectWorld = GetWorldRect(rawImageRect);
-                                
-                                // Viewport座標をRawImageのローカル座標に変換
-                                float x = rawImageRectWorld.x + viewportPos.x * rawImageRectWorld.width;
-                                float y = rawImageRectWorld.y + viewportPos.y * rawImageRectWorld.height;
-                                
-                                // Canvas座標に変換
-                                if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-                                {
-                                    rectTransform.position = new Vector3(x, y, 0);
-                                }
-                                else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
-                                {
-                                    Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
-                                    Vector3 worldPos = new Vector3(x, y, canvasCamera.nearClipPlane);
-                                    Vector3 screenPos = canvasCamera.WorldToScreenPoint(worldPos);
-                                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                                        canvas.transform as RectTransform,
-                                        screenPos,
-                                        canvasCamera,
-                                        out Vector2 localPoint
-                                    );
-                                    rectTransform.localPosition = localPoint;
-                                }
-                            }
-                            else
-                            {
-                                // RawImageが見つからない場合は通常の処理にフォールバック
-                                FallbackDamageTextPosition(canvas, rectTransform, worldPosition.Value, renderCamera);
-                            }
-                        }
-                        else
-                        {
-                            // RawImageが見つからない場合は通常の処理にフォールバック
-                            FallbackDamageTextPosition(canvas, rectTransform, worldPosition.Value, renderCamera);
-                        }
-                    }
-                    else
-                    {
-                        // RenderTextureを使っていない場合は通常の処理
-                        FallbackDamageTextPosition(canvas, rectTransform, worldPosition.Value, Camera.main);
-                    }
-                }
+                rectTransform.position = new Vector3(x, y, 0);
+            }
+            else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
+            {
+                Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
+                Vector3 worldPos = new Vector3(x, y, canvasCamera.nearClipPlane);
+                Vector3 screenPos = canvasCamera.WorldToScreenPoint(worldPos);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvas.transform as RectTransform,
+                    screenPos,
+                    canvasCamera,
+                    out Vector2 localPoint
+                );
+                rectTransform.localPosition = localPoint;
             }
         }
 
@@ -183,35 +173,6 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogWarning("UIManager: UIDamage component not found on prefab!");
         }
-    }
-
-    /// <summary>
-    /// ダメージテキストを削除（通常は自動削除されるが、手動で削除する場合に使用）
-    /// </summary>
-    /// <param name="damageTextObj">削除するダメージテキストのGameObject</param>
-    public void RemoveDamageText(GameObject damageTextObj)
-    {
-        if (damageTextObj != null)
-        {
-            Destroy(damageTextObj);
-        }
-    }
-
-    /// <summary>
-    /// RenderTextureに描画しているカメラを検索
-    /// </summary>
-    /// <returns>RenderTextureに描画しているカメラ、見つからない場合はnull</returns>
-    Camera FindRenderTextureCamera()
-    {
-        Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
-        foreach (Camera cam in cameras)
-        {
-            if (cam.targetTexture != null)
-            {
-                return cam;
-            }
-        }
-        return null;
     }
 
     /// <summary>
@@ -236,37 +197,6 @@ public class UIManager : MonoBehaviour
         }
         
         return new Rect(minX, minY, maxX - minX, maxY - minY);
-    }
-
-    /// <summary>
-    /// 通常の座標変換処理（フォールバック）
-    /// </summary>
-    void FallbackDamageTextPosition(Canvas canvas, RectTransform rectTransform, Vector3 worldPosition, Camera camera)
-    {
-        if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-        {
-            // Screen Space - Overlayの場合は、Camera.mainを使用
-            Vector2 screenPos = camera.WorldToScreenPoint(worldPosition);
-            rectTransform.position = screenPos;
-        }
-        else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
-        {
-            // Screen Space - Cameraの場合は、Canvasのカメラを使用
-            Camera canvasCamera = canvas.worldCamera != null ? canvas.worldCamera : camera;
-            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldPosition);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvas.transform as RectTransform,
-                screenPos,
-                canvasCamera,
-                out Vector2 localPoint
-            );
-            rectTransform.localPosition = localPoint;
-        }
-        else if (canvas.renderMode == RenderMode.WorldSpace)
-        {
-            // World Spaceの場合は、直接ワールド座標を使用
-            rectTransform.position = worldPosition;
-        }
     }
 }
 
