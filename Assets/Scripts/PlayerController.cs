@@ -143,6 +143,9 @@ public class PlayerController : MonoBehaviour
         // ドームをスケールアップアニメーション付きで表示（attackRangeをスケールとして使用）
         if (rangeDome != null) rangeDome.Show(attackRange);
 
+        // エイムモード中は移動アニメーションを停止
+        animator.SetFloat("Speed", 0f);
+
         // 一番近いEnemyを検索
         _targetEnemy = FindNearestEnemy();
 
