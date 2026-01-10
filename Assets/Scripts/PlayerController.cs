@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     public Animator animator;
     public InputActionAsset inputActions; // Input Actionsファイルを割り当てる
-    public GameObject rangeDome;
+    public RangeDomeController rangeDome; // RangeDomeControllerコンポーネントを割り当てる
 
     private CharacterController _characterController;
     private Vector3 _velocity;
@@ -140,7 +140,8 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsAiming", true); // 上半身レイヤーが有効になる
         if (gunObject != null) gunObject.SetActive(true);
 
-        rangeDome.SetActive(true);
+        // ドームをスケールアップアニメーション付きで表示
+        if (rangeDome != null) rangeDome.Show();
 
         // 一番近いEnemyを検索
         _targetEnemy = FindNearestEnemy();
@@ -154,7 +155,8 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsAiming", false);
         if (gunObject != null) gunObject.SetActive(false);
 
-        rangeDome.SetActive(false);
+        // ドームを即座に非表示
+        if (rangeDome != null) rangeDome.Hide();
         
         // ターゲットをクリア
         _targetEnemy = null;
