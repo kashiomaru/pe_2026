@@ -2848,6 +2848,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   attackRange: 8
+  attackSound: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
   animator: {fileID: 1795678576899275897}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   rangeDome: {fileID: 2201867369827131718}

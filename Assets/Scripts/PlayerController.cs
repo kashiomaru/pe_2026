@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public Transform gunMuzzle; // 銃口の位置（空のGameObjectを銃の先に配置して割り当てる）
     public LayerMask enemyLayer; // Enemyレイヤーを指定
     public float attackRange = 8f; // 攻撃可能距離
+    public AudioClip attackSound; // 攻撃時の音（WAVファイルを割り当てる）
 
     [Header("References")]
     public Animator animator;
@@ -29,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _velocity;
     private float _currentSpeed;
     private Transform _cachedCameraTransform; // キャッシュされたカメラTransform
+    private AudioSource _audioSource; // 音声再生用
     
     // Input System用の変数
     private InputActionMap _playerActionMap;
@@ -45,6 +47,13 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
+        
+        // AudioSourceの取得または追加
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+        {
+            _audioSource = gameObject.AddComponent<AudioSource>();
+        }
         
         // Input Systemの初期化
         if (inputActions != null)
@@ -321,6 +330,12 @@ public class PlayerController : MonoBehaviour
 
     void ShootRaycast()
     {
+        // 攻撃音を再生
+        if (_audioSource != null && attackSound != null)
+        {
+            _audioSource.PlayOneShot(attackSound);
+        }
+        
         // ターゲットの敵に直接ダメージを与える
         if (_targetEnemy != null)
         {
