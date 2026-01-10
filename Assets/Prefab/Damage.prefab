@@ -93,8 +93,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 42
+  m_fontSizeBase: 42
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -150,4 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7708ba7a61c464b21bedfb70ea3a6cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIDamage
+  textMeshPro: {fileID: 7442790303915163626}
+  rectTransform: {fileID: 6081588282173952833}
   displayDuration: 1
+  moveDistance: 50
+  moveDirection: {x: 0, y: 1}
