@@ -118,7 +118,7 @@ public class MapGenerator : MonoBehaviour
                         if (enemyPrefab != null)
                         {
                             Vector3 enemyPos = position + Vector3.up * 0.1f; // 床の上に少し浮かせる
-                            GameObject enemy = Instantiate(enemyPrefab, enemyPos, Quaternion.identity, levelParent.transform);
+                            GameObject enemy = Instantiate(enemyPrefab, enemyPos, Quaternion.identity, transform);
                             enemy.name = $"Enemy_{x}_{z}"; // デバッグ用に名前を設定
                         }
                         break;
