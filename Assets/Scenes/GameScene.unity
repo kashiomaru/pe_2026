@@ -600,15 +600,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 360626817129693361, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
-      propertyPath: enemyPrefab
-      value: 
-      objectReference: {fileID: 8688803186435683820, guid: 74267ff410e274c7c8c323b33a04fb2f, type: 3}
-    - target: {fileID: 360626817129693361, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
-      propertyPath: jsonMapData
-      value: "{\n  \"tileSize\": 2.5,\n  \"layout\": [\n    \"WWWWWW2W\",\n    \"W......W\",\n   
-        \"3.P....1\",\n    \"W......W\",\n    \"WW4WWWWW\"\n  ]\n}"
-      objectReference: {fileID: 0}
-    - target: {fileID: 360626817129693361, guid: 5d01f8dc7ed294baeb56a9d69915f1b7, type: 3}
       propertyPath: cinemachineCamera
       value: 
       objectReference: {fileID: 237737664}

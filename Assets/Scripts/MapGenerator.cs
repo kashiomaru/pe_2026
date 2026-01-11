@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
+using Unity.AI.Navigation;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class MapGenerator : MonoBehaviour
     
     [Header("Cinemachine")]
     public CinemachineCamera cinemachineCamera;
+    
+    [Header("NavMesh")]
+    public NavMeshSurface navMeshSurface; // InspectorでNavMeshSurfaceコンポーネントを設定
 
     // 生成されたプレイヤーインスタンス（使いまわし用）
     private GameObject playerInstance = null;
@@ -219,6 +223,25 @@ public class MapGenerator : MonoBehaviour
         else if (playerTransform == null)
         {
             Debug.LogWarning("Player was not found in the map layout (no spawn point)");
+        }
+        
+        // NavMeshをビルド
+        BuildNavMesh();
+    }
+    
+    /// <summary>
+    /// NavMeshをビルドする
+    /// </summary>
+    private void BuildNavMesh()
+    {
+        if (navMeshSurface != null)
+        {
+            navMeshSurface.BuildNavMesh();
+            Debug.Log("NavMesh built successfully");
+        }
+        else
+        {
+            Debug.LogWarning("NavMeshSurface is not assigned in MapGenerator. NavMesh will not be built.");
         }
     }
 

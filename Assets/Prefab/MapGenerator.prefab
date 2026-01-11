@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4815202911296690113}
   - component: {fileID: 360626817129693361}
+  - component: {fileID: 7189148591241978269}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -48,5 +49,38 @@ MonoBehaviour:
   wallQuadPrefab: {fileID: 134090814964348493, guid: 8092c35bc07f24a46b179fde6b7b747f, type: 3}
   doorQuadPrefab: {fileID: 4257837820221677113, guid: be43bd662478c4f5d94388921d3bee3f, type: 3}
   playerPrefab: {fileID: 3708988504835173406, guid: 5b4481e6648d2455e9a0bd64ca71033b, type: 3}
-  enemyPrefab: {fileID: 5879343684935955685, guid: 579b6679cbccb4fa88003c6c38fd69b7, type: 3}
+  enemyPrefab: {fileID: 8688803186435683820, guid: 74267ff410e274c7c8c323b33a04fb2f, type: 3}
   cinemachineCamera: {fileID: 0}
+  navMeshSurface: {fileID: 7189148591241978269}
+--- !u!114 &7189148591241978269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2328808557122119121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 0}
+  m_BuildHeightMesh: 0
