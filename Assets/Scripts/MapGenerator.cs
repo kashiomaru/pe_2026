@@ -264,17 +264,21 @@ public class MapGenerator : MonoBehaviour
         {
             Vector3 desiredPos = spawnPositions[i];
             
-            // NavMesh上に近い位置をサンプリング
-            if (NavMesh.SamplePosition(desiredPos, out var hit, 2.0f, NavMesh.AllAreas))
+            // NavMesh上に近い位置をサンプリング（範囲を広げる）
+            if (NavMesh.SamplePosition(desiredPos, out var hit, 3.0f, NavMesh.AllAreas))
             {
                 GameObject enemy = Instantiate(enemyPrefab, hit.position, Quaternion.identity, transform);
                 enemy.name = $"Enemy_{i}"; // デバッグ用に名前を設定
                 
                 // NavMeshAgentがアタッチされている場合、確実にNavMesh上に配置
                 NavMeshAgent agent = enemy.GetComponent<NavMeshAgent>();
-                if (agent != null && !agent.isOnNavMesh)
+                if (agent != null)
                 {
-                    agent.Warp(hit.position);
+                    // 生成直後はNavMesh上に配置されていない可能性があるため、必ずWarpする
+                    // 少し待ってからWarpすることで確実に配置される
+                    agent.enabled = false; // 一度無効化
+                    agent.enabled = true;  // 再度有効化
+                    agent.Warp(hit.position); // NavMesh上に配置
                 }
                 
                 spawnedCount++;
@@ -296,6 +300,7 @@ public class MapGenerator : MonoBehaviour
         if (navMeshSurface != null)
         {
             navMeshSurface.BuildNavMesh();
+            navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
             Debug.Log("NavMesh built successfully");
         }
         else
