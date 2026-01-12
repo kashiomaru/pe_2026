@@ -21,8 +21,16 @@ public class Enemy : MonoBehaviour
     
     void Update()
     {
-        // 重力を常に適用
-        ApplyGravity();
+        // NavMeshAgentがアタッチされている場合は、NavMeshAgentが移動を制御するため
+        // CharacterControllerでの移動処理は行わない（重力のみ適用）
+        // NavMeshAgentは自動的にTransformを更新するため、手動での移動は不要
+        UnityEngine.AI.NavMeshAgent agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        if (agent == null || !agent.enabled)
+        {
+            // NavMeshAgentがない場合のみ重力を適用
+            ApplyGravity();
+        }
+        // NavMeshAgentがある場合は、NavMeshAgentが移動を制御するため何もしない
     }
 
     // ダメージを受ける処理（BattleManager経由で呼ばれる）

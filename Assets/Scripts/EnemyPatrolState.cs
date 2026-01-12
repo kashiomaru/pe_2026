@@ -52,7 +52,7 @@ public class EnemyPatrolState : IState
 
         // 到着判定
         bool arrived =
-            _agent.hasPath &&
+            _agent.hasPath == false &&
             _agent.remainingDistance <= _agent.stoppingDistance + 0.1f &&
             _agent.velocity.sqrMagnitude < 0.01f;
 
@@ -101,7 +101,6 @@ public class EnemyPatrolState : IState
                 if (Vector3.Distance(_agent.transform.position, hit.position) < _minDist)
                     continue;
 
-                Debug.Log($"Setting destination to {hit.position}");
                 _agent.SetDestination(hit.position);
                 return;
             }
@@ -110,7 +109,6 @@ public class EnemyPatrolState : IState
         // 失敗したらホームに戻す（保険）
         if (NavMesh.SamplePosition(_homePos, out var homeHit, 2.0f, NavMesh.AllAreas))
         {
-            Debug.Log($"Setting destination to {homeHit.position} because no destination found");
             _agent.SetDestination(homeHit.position);
         }
     }
