@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.AI.Navigation;
+using UnityEngine.AI;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -81,6 +82,9 @@ public class MapGenerator : MonoBehaviour
 
         // スポーン候補位置辞書（番号と位置の対応）
         Dictionary<int, Vector3> spawnPoints = new Dictionary<int, Vector3>();
+        
+        // 敵のスポーン位置リスト（NavMeshビルド後に生成するため）
+        List<Vector3> enemySpawnPositions = new List<Vector3>();
 
         GameObject levelParent = new GameObject("Level_Generated");
         levelParent.transform.SetParent(transform);
@@ -118,12 +122,11 @@ public class MapGenerator : MonoBehaviour
                         break;
                     
                     case 'E': // Enemy
-                        // 敵を配置
+                        // 敵のスポーン位置を記録（NavMeshビルド後に生成）
                         if (enemyPrefab != null)
                         {
                             Vector3 enemyPos = position + Vector3.up * 0.1f; // 床の上に少し浮かせる
-                            GameObject enemy = Instantiate(enemyPrefab, enemyPos, Quaternion.identity, transform);
-                            enemy.name = $"Enemy_{x}_{z}"; // デバッグ用に名前を設定
+                            enemySpawnPositions.Add(enemyPos);
                         }
                         break;
                 }
@@ -187,17 +190,28 @@ public class MapGenerator : MonoBehaviour
             }
         }
         
-        // プレイヤーを指定の位置へ移動
+        // NavMeshをビルド（プレイヤーと敵の生成前に実行）
+        BuildNavMesh();
+        
+        // NavMeshビルド後にプレイヤーと敵を生成
+        Transform playerTransform = SpawnPlayer(spawnPoints, spawnNumber);
+        SetupCinemachine(playerTransform);
+        SpawnEnemies(enemySpawnPositions);
+    }
+    
+    /// <summary>
+    /// プレイヤーを生成・配置する（NavMeshビルド後に呼ばれる）
+    /// </summary>
+    private Transform SpawnPlayer(Dictionary<int, Vector3> spawnPoints, int spawnNumber)
+    {
         Transform playerTransform = null;
+        
         if (spawnPoints.ContainsKey(spawnNumber) && playerPrefab != null)
         {
             Vector3 spawnPos = spawnPoints[spawnNumber] + Vector3.up * 0.1f;
             
             // 最初の生成時のみインスタンス化、その後は使いまわし
             playerInstance = playerInstance ?? Instantiate(playerPrefab, spawnPos, Quaternion.identity, transform);
-            playerTransform = playerInstance.transform;
-                
-            // 既存のインスタンスを使いまわし
             playerTransform = playerInstance.transform;
             
             // CharacterControllerへの配慮
@@ -208,9 +222,18 @@ public class MapGenerator : MonoBehaviour
             playerInstance.transform.rotation = Quaternion.identity;
             
             if (cc != null) cc.enabled = true;
+            
+            Debug.Log($"Player spawned at position {spawnPos}");
         }
         
-        // CinemachineのTrackingTargetにプレイヤーのTransformを設定
+        return playerTransform;
+    }
+    
+    /// <summary>
+    /// CinemachineのTrackingTargetを設定する
+    /// </summary>
+    private void SetupCinemachine(Transform playerTransform)
+    {
         if (cinemachineCamera != null && playerTransform != null)
         {
             cinemachineCamera.Target.TrackingTarget = playerTransform;
@@ -224,9 +247,45 @@ public class MapGenerator : MonoBehaviour
         {
             Debug.LogWarning("Player was not found in the map layout (no spawn point)");
         }
+    }
+    
+    /// <summary>
+    /// 敵を生成する（NavMeshビルド後に呼ばれる）
+    /// </summary>
+    private void SpawnEnemies(List<Vector3> spawnPositions)
+    {
+        if (enemyPrefab == null || spawnPositions == null || spawnPositions.Count == 0)
+        {
+            return;
+        }
         
-        // NavMeshをビルド
-        BuildNavMesh();
+        int spawnedCount = 0;
+        for (int i = 0; i < spawnPositions.Count; i++)
+        {
+            Vector3 desiredPos = spawnPositions[i];
+            
+            // NavMesh上に近い位置をサンプリング
+            if (NavMesh.SamplePosition(desiredPos, out var hit, 2.0f, NavMesh.AllAreas))
+            {
+                GameObject enemy = Instantiate(enemyPrefab, hit.position, Quaternion.identity, transform);
+                enemy.name = $"Enemy_{i}"; // デバッグ用に名前を設定
+                
+                // NavMeshAgentがアタッチされている場合、確実にNavMesh上に配置
+                NavMeshAgent agent = enemy.GetComponent<NavMeshAgent>();
+                if (agent != null && !agent.isOnNavMesh)
+                {
+                    agent.Warp(hit.position);
+                }
+                
+                spawnedCount++;
+            }
+            else
+            {
+                Debug.LogWarning($"Failed to find NavMesh position near {desiredPos} for enemy {i}. Skipping spawn.");
+            }
+        }
+        
+        Debug.Log($"Spawned {spawnedCount}/{spawnPositions.Count} enemies after NavMesh build");
     }
     
     /// <summary>

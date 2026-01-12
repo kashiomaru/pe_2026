@@ -47,6 +47,7 @@ public class EnemyPatrolState : IState
 
     public void Tick()
     {
+        Debug.Log($"Path pending: {_agent.pathPending}");
         if (_agent.pathPending) return;
 
         // 到着判定
@@ -100,6 +101,7 @@ public class EnemyPatrolState : IState
                 if (Vector3.Distance(_agent.transform.position, hit.position) < _minDist)
                     continue;
 
+                Debug.Log($"Setting destination to {hit.position}");
                 _agent.SetDestination(hit.position);
                 return;
             }
@@ -108,6 +110,7 @@ public class EnemyPatrolState : IState
         // 失敗したらホームに戻す（保険）
         if (NavMesh.SamplePosition(_homePos, out var homeHit, 2.0f, NavMesh.AllAreas))
         {
+            Debug.Log($"Setting destination to {homeHit.position} because no destination found");
             _agent.SetDestination(homeHit.position);
         }
     }
