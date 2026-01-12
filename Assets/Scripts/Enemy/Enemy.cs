@@ -60,6 +60,7 @@ public class Enemy : MonoBehaviour
         
         // PlayerControllerと同じように、DampTimeを使って数値の急変を防ぐ
         animator.SetFloat("Speed", normalizedSpeed, 0.1f, Time.deltaTime);
+        animator.speed = normalizedSpeed * 3.0f + 1f; // normalizedSpeed 0 ~ 1 → 1 ~ 3
     }
 
     // ダメージを受ける処理（BattleManager経由で呼ばれる）
