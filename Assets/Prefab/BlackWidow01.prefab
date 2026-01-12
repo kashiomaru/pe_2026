@@ -48,6 +48,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   maxHp: 3
+  animator: {fileID: 8565941398600437219}
+  agent: {fileID: 6075699224143473945}
 --- !u!195 &6075699224143473945
 NavMeshAgent:
   m_ObjectHideFlags: 0

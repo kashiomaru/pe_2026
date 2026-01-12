@@ -3522,7 +3522,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   maxHp: 3
-  gravity: -9.81
+  animator: {fileID: 1812546439964764106}
+  agent: {fileID: 4102979207865743081}
 --- !u!95 &1812546439964764106
 Animator:
   serializedVersion: 7
@@ -3555,7 +3556,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: -334000983
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2.5
   m_Acceleration: 30
   avoidancePriority: 50
   m_AngularSpeed: 360

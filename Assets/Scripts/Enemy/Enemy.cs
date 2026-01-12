@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// 敵の基本クラス（HP管理など）
@@ -9,11 +10,56 @@ public class Enemy : MonoBehaviour
     [Header("Combat")]
     public int maxHp = 3;
     
+    [Header("References")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private NavMeshAgent agent;
+    
     private int _currentHp;
 
     void Start()
     {
         _currentHp = maxHp;
+        
+        // Animatorが設定されていない場合は自動取得
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+        
+        // NavMeshAgentが設定されていない場合は自動取得
+        if (agent == null)
+        {
+            agent = GetComponent<NavMeshAgent>();
+        }
+    }
+    
+    void Update()
+    {
+        // AnimatorとNavMeshAgentが存在する場合、Speedパラメータを更新
+        if (animator != null && agent != null)
+        {
+            UpdateAnimatorSpeed();
+        }
+    }
+    
+    /// <summary>
+    /// NavMeshAgentの速度に基づいてAnimatorのSpeedパラメータを更新
+    /// PlayerControllerと同じように0=Idle, 0.5=Walk, 1.0=Runになるように正規化
+    /// </summary>
+    private void UpdateAnimatorSpeed()
+    {
+        // NavMeshAgentの現在の速度を取得
+        float currentSpeed = agent.velocity.magnitude;
+        
+        // 最大速度で正規化（0.0～1.0の範囲に）
+        float normalizedSpeed = 0f;
+        if (agent.speed > 0f)
+        {
+            normalizedSpeed = Mathf.Clamp01(currentSpeed / agent.speed);
+        }
+        
+        // PlayerControllerと同じように、DampTimeを使って数値の急変を防ぐ
+        animator.SetFloat("Speed", normalizedSpeed, 0.1f, Time.deltaTime);
     }
 
     // ダメージを受ける処理（BattleManager経由で呼ばれる）
