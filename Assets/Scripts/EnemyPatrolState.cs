@@ -47,7 +47,6 @@ public class EnemyPatrolState : IState
 
     public void Tick()
     {
-        Debug.Log($"Path pending: {_agent.pathPending}");
         if (_agent.pathPending) return;
 
         // 到着判定

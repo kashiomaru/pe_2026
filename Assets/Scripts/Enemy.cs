@@ -1,36 +1,19 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
+/// <summary>
+/// 敵の基本クラス（HP管理など）
+/// 移動はNavMeshAgent（EnemyBrain）が制御する
+/// </summary>
 public class Enemy : MonoBehaviour
 {
     [Header("Combat")]
     public int maxHp = 3;
     
-    [Header("Physics")]
-    public float gravity = -9.81f;
-    
     private int _currentHp;
-    private CharacterController _characterController;
-    private Vector3 _velocity;
 
     void Start()
     {
         _currentHp = maxHp;
-        _characterController = GetComponent<CharacterController>();
-    }
-    
-    void Update()
-    {
-        // NavMeshAgentがアタッチされている場合は、NavMeshAgentが移動を制御するため
-        // CharacterControllerでの移動処理は行わない（重力のみ適用）
-        // NavMeshAgentは自動的にTransformを更新するため、手動での移動は不要
-        UnityEngine.AI.NavMeshAgent agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-        if (agent == null || !agent.enabled)
-        {
-            // NavMeshAgentがない場合のみ重力を適用
-            ApplyGravity();
-        }
-        // NavMeshAgentがある場合は、NavMeshAgentが移動を制御するため何もしない
     }
 
     // ダメージを受ける処理（BattleManager経由で呼ばれる）
@@ -77,17 +60,5 @@ public class Enemy : MonoBehaviour
         Debug.Log("Enemy Defeated!");
         // 死亡エフェクトや音を入れるならここ
         Destroy(gameObject);
-    }
-    
-    void ApplyGravity()
-    {
-        // 接地しているなら重力リセット（少し押し付ける）
-        if (_characterController.isGrounded && _velocity.y < 0)
-        {
-            _velocity.y = -2f;
-        }
-
-        _velocity.y += gravity * Time.deltaTime;
-        _characterController.Move(_velocity * Time.deltaTime);
     }
 }
